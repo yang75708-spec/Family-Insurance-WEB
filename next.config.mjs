@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
+  output: 'export',
+  basePath: '/Family-Insurance-WEB',
+  trailingSlash: true,
 };
 
 export default nextConfig;

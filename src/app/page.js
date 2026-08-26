@@ -1,69 +1,43 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
+
+import { useRouter } from 'next/navigation';
+
+const FEATURES = [
+  { icon: '🩺', title: '健康险缺口', desc: '重疾 + 医疗缺口测算，家庭流动资产自动抵扣' },
+  { icon: '🛡️', title: '寿险保额', desc: '支出缺口 vs 收入损失双法取大，按职业稳定度修正' },
+  { icon: '💰', title: '养老储备', desc: '目标替代率测算 + 分资产滚存，给出年缴建议' },
+  { icon: '📋', title: '子女/父母', desc: '子女重疾保额与医疗方案、父母医疗配置建议' },
+];
 
 export default function Home() {
+  const router = useRouter();
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.js</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="home">
+      <div className="hero">
+        <div className="hero-title">家庭保险决策助手</div>
+        <div className="hero-sub">4 步填写家庭信息 · 生成健康 / 寿险 / 养老三大保障建议</div>
+      </div>
+
+      <div className="card intro">
+        <div className="card-title">它能做什么</div>
+        {FEATURES.map((f) => (
+          <div key={f.title} className="feature">
+            <div className="feature-icon">{f.icon}</div>
+            <div className="feature-body">
+              <div className="feature-title">{f.title}</div>
+              <div className="feature-desc">{f.desc}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="card note">
+        <div className="tip">本工具测算结果仅供参考，具体投保请咨询持牌保险经纪人或核保人员。</div>
+      </div>
+
+      <div className="home-footer">
+        <button className="btn-primary" onClick={() => router.push('/basic')}>开始评估</button>
+      </div>
     </div>
   );
 }
