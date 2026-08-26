@@ -444,13 +444,13 @@ function calculate(input) {
     recCI: recCI1, ciGap: ciGap1, recMI: expectedMedical1, miGap: miGap1, totalHealthGap: totalHealthGap1,
     recMIType: recMIType1, miReason: miReason1, estCIPrem: estCIPrem1, estMIPrem: estMIPrem1, totalHealthPrem: totalHealthPrem1, healthBudget: healthBudget1,
     recLife: recLife1, existingLife: existingLife1, lifeGap: lifeGap1, estLifePrem: estLifePrem1, lifeBudget: lifeBudget1, lifeTerm: lifeTerm1,
-    recPension: recPension1, existingPensionFV: existingReserveFV1, annualRetireGoal: goal1, pensionGap: retireGap1, payYears: payYears1, pensionBudget: pensionBudget1,
+    recPension: recPension1, existingPensionFV: existingReserveFV1, annualRetireGoal: goalActual1, pensionGap: retireGap1, payYears: payYears1, pensionBudget: pensionBudget1,
   };
   r.secondPerson = {
     recCI: recCI2, ciGap: ciGap2, recMI: expectedMedical2, miGap: miGap2, totalHealthGap: totalHealthGap2,
     recMIType: recMIType2, miReason: miReason2, estCIPrem: estCIPrem2, estMIPrem: estMIPrem2, totalHealthPrem: totalHealthPrem2, healthBudget: healthBudget2,
     recLife: recLife2, existingLife: existingLife2, lifeGap: lifeGap2, estLifePrem: estLifePrem2, lifeBudget: lifeBudget2, lifeTerm: lifeTerm2,
-    recPension: recPension2, existingPensionFV: existingReserveFV2, annualRetireGoal: goal2, pensionGap: retireGap2, payYears: payYears2, pensionBudget: pensionBudget2,
+    recPension: recPension2, existingPensionFV: existingReserveFV2, annualRetireGoal: goalActual2, pensionGap: retireGap2, payYears: payYears2, pensionBudget: pensionBudget2,
   };
   r.child = {
     recCI: childCIRec, existingCI: Number(d.childCIExisting) || 0, ciGap: childCIGap,
