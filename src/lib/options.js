@@ -25,7 +25,6 @@ export const OPTIONS = {
     { key: 'child', label: '子女' },
     { key: 'parent', label: '父母' },
   ],
-  ciBracket: ['A', 'B', 'C'],
   ciPayPeriod: ['趸缴', '10年', '20年', '30年'],
   familyCoefficient: ['保守', '稳健', '进取'],
   // 保费预算（补充自网页：小程序 OPTIONS 原缺这两项，健康页引用会导致崩溃）
@@ -69,4 +68,75 @@ export const MID = {
 export function resolve(map, val, fallback) {
   if (val !== undefined && val !== null && Object.prototype.hasOwnProperty.call(map, val)) return map[val];
   return fallback;
+}
+
+// ====== 期望医疗年花销区间（元/年，来源：副本健康险数据参考_修订版(1).xlsx「期望医疗消费区间(自选)」表） ======
+// 4城市 × 3健康状况 × 3档位 = 36 组区间，用户按「城市+身体状况」看到对应 3 个数字区间自选一档，取中值计算。
+export const BRACKET_TIERS = ['A', 'B', 'C'];
+const MEDICAL_RANGES = {
+  '一线': {
+    '优': { A: [0, 500], B: [500, 1500], C: [1500, 3000] },
+    '良': { A: [500, 2000], B: [2000, 5000], C: [5000, 10000] },
+    '差': { A: [2000, 8000], B: [8000, 20000], C: [20000, 50000] },
+  },
+  '新一线/二线': {
+    '优': { A: [0, 400], B: [400, 1200], C: [1200, 2500] },
+    '良': { A: [400, 1500], B: [1500, 4000], C: [4000, 8000] },
+    '差': { A: [1500, 6000], B: [6000, 15000], C: [15000, 40000] },
+  },
+  '普通地级市': {
+    '优': { A: [0, 300], B: [300, 1000], C: [1000, 2000] },
+    '良': { A: [300, 1200], B: [1200, 3000], C: [3000, 6000] },
+    '差': { A: [1000, 5000], B: [5000, 12000], C: [12000, 30000] },
+  },
+  '县城': {
+    '优': { A: [0, 200], B: [200, 800], C: [800, 1500] },
+    '良': { A: [200, 1000], B: [1000, 2500], C: [2500, 5000] },
+    '差': { A: [800, 4000], B: [4000, 10000], C: [10000, 25000] },
+  },
+};
+
+function medicalCityGroup(city) {
+  if (city === '北上广深') return '一线';
+  if (city === '新一线/二线') return '新一线/二线';
+  if (city === '普通地级市') return '普通地级市';
+  return '县城';
+}
+
+function medRange(city, health, tier) {
+  const g = medicalCityGroup(city);
+  const row = MEDICAL_RANGES[g] && MEDICAL_RANGES[g][health];
+  return (row && row[tier]) || null;
+}
+
+function fmtMoney(n) {
+  return n.toLocaleString('en-US');
+}
+
+// 网页 Picker 选项：[{ label: '500~1,500元', value: 'A' }, ...]
+export function getMedicalOptions(city, health) {
+  const g = medicalCityGroup(city);
+  const row = MEDICAL_RANGES[g] && MEDICAL_RANGES[g][health];
+  if (!row) return [];
+  return BRACKET_TIERS.map((t) => ({ label: fmtMoney(row[t][0]) + '~' + fmtMoney(row[t][1]) + '元', value: t }));
+}
+
+// 小程序 picker 选项：['500~1,500元', ...]
+export function getMedicalRangeLabels(city, health) {
+  return getMedicalOptions(city, health).map((o) => o.label);
+}
+
+// 区间中值（万元），供计算引擎 getExpectedMedicalCost 使用
+export function getMedicalMid(city, health, tier) {
+  const r = medRange(city, health, tier);
+  if (!r) return 0.5;
+  return ((r[0] + r[1]) / 2) / 10000;
+}
+
+// 表单小字说明：固定文案 + 当前所选区间中值
+export function getMedicalHint(city, health, tier) {
+  const base = '请选择您每年大概的医疗花销（剔除医保覆盖的金额）';
+  const r = medRange(city, health, tier);
+  if (!r) return base;
+  return base + '。当前所选区间 ' + fmtMoney(r[0]) + '~' + fmtMoney(r[1]) + '元，中值 ' + fmtMoney(Math.round((r[0] + r[1]) / 2)) + '元/年 计入测算。';
 }

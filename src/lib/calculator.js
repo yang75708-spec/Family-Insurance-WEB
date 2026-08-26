@@ -3,7 +3,7 @@
 
 import { Excel } from './excel.js';
 import RATES from './rates.js';
-import { MID, resolve } from './options.js';
+import { MID, resolve, getMedicalMid } from './options.js';
 
 // ====== 固定参数 ======
 const G = 0.025;                 // 寿险/养老金通胀率
@@ -55,34 +55,10 @@ function getSevereCost(city) {
   return (g === '一线' || g === '新一线/二线') ? 50 : 30;
 }
 
-// ====== 期望医疗消费档位（元/年区间中值 → 万元） ======
-const MEDICAL_BRACKETS = {
-  '一线': {
-    '优': { A: 0.025, B: 0.10, C: 0.225 },
-    '良': { A: 0.125, B: 0.35, C: 0.75 },
-    '差': { A: 0.5, B: 1.4, C: 3.5 },
-  },
-  '新一线/二线': {
-    '优': { A: 0.02, B: 0.08, C: 0.185 },
-    '良': { A: 0.095, B: 0.275, C: 0.6 },
-    '差': { A: 0.375, B: 1.05, C: 2.75 },
-  },
-  '普通地级市': {
-    '优': { A: 0.015, B: 0.065, C: 0.15 },
-    '良': { A: 0.075, B: 0.21, C: 0.45 },
-    '差': { A: 0.3, B: 0.85, C: 2.1 },
-  },
-  '县城': {
-    '优': { A: 0.01, B: 0.05, C: 0.115 },
-    '良': { A: 0.06, B: 0.175, C: 0.375 },
-    '差': { A: 0.24, B: 0.7, C: 1.75 },
-  },
-};
-// 期望医疗消费（万元），仅 A/B/C 档。重症基础花销由 getSevereCost 计入重疾缺口（一线/新一线/二线 50万，其余 30万）
+// 期望医疗年花销（万元）= 所选区间中值。区间表与函数定义在 options.js（36组：4城市×3健康×A/B/C）
+// 重症基础花销由 getSevereCost 计入重疾缺口（一线/新一线/二线 50万，其余 30万）
 function getExpectedMedicalCost(city, health, bracket) {
-  const group = getCityGroup(city);
-  const v = MEDICAL_BRACKETS[group] && MEDICAL_BRACKETS[group][health];
-  return (v && v[bracket]) !== undefined ? v[bracket] : 0.5;
+  return getMedicalMid(city, health, bracket);
 }
 
 // ====== 重疾险费率：缴费期均衡费率（保至70岁） ======

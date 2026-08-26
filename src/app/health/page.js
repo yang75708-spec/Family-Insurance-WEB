@@ -2,16 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { OPTIONS } from '@/lib/options';
+import { OPTIONS, getMedicalOptions, getMedicalHint } from '@/lib/options';
 import { getFormData, saveFormData } from '@/lib/store';
 import { Picker, NumInput, Switch, CbGroup } from '@/components/fields';
 
 const HI_TYPES = ['社保医保', '惠民保', '百万医疗', '中端医疗', '高端医疗', '重疾险'];
-const BRACKET_HINT = {
-  A: '低档：报销比例较低，保费低',
-  B: '中档：常规住院基本覆盖，推荐',
-  C: '高档：含特需/进口，覆盖全面',
-};
 
 const EXISTING_NUM = [
   'firstPersonCIExisting', 'secondPersonCIExisting',
@@ -41,8 +36,13 @@ export default function HealthPage() {
       <>
         <Picker label="身体状况自评" options={OPTIONS.healthStatus} value={form[formKey + 'HealthStatus']} onChange={(v) => set(formKey + 'HealthStatus', v)} />
         <Switch label="是否吸烟" checked={form[formKey + 'Smoke']} onChange={(v) => set(formKey + 'Smoke', v)} />
-        <Picker label="期望医疗消费档位" options={OPTIONS.ciBracket} value={form[member + '_期望医疗消费档位']} onChange={(v) => set(member + '_期望医疗消费档位', v)} />
-        <div className="tip">{BRACKET_HINT[form[member + '_期望医疗消费档位']]}</div>
+        <Picker
+          label="期望医疗年花销"
+          options={getMedicalOptions(form.city, form[formKey + 'HealthStatus'])}
+          value={form[member + '_期望医疗消费档位']}
+          onChange={(v) => set(member + '_期望医疗消费档位', v)}
+        />
+        <div className="tip">{getMedicalHint(form.city, form[formKey + 'HealthStatus'], form[member + '_期望医疗消费档位'])}</div>
         <div className="sec-title">已有险种（勾选后自动计入已有保额）</div>
         <CbGroup types={HI_TYPES} values={memberValues(member)} onToggle={(t) => toggle(member, t)} />
         <NumInput label="已有重疾险保额（万）" value={form[formKey + 'CIExisting']} onChange={(v) => set(formKey + 'CIExisting', v)} placeholder="手动填写" />
@@ -66,7 +66,7 @@ export default function HealthPage() {
 
   return (
     <div className="page">
-      <div className="tip" style={{ marginBottom: '16px' }}>第 2 / 4 步：勾选家庭成员已有的医疗/重疾险种，并设置期望医疗档位与保费预算。勾选险种的有效保额会自动参与缺口测算。</div>
+      <div className="tip" style={{ marginBottom: '16px' }}>第 2 / 4 步：勾选家庭成员已有的医疗/重疾险种，并设置期望医疗年花销与保费预算。勾选险种的有效保额会自动参与缺口测算。</div>
 
       <div className="card">
         <div className="card-title">家庭系数与缴费方式</div>

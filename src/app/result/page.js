@@ -34,7 +34,7 @@ function buildView(r) {
     health: [
       row('建议重疾保额', fmt(f.recCI) + ' 万'),
       row('重疾缺口', fmt(f.ciGap) + ' 万'),
-      row('期望医疗消费', fmt(f.recMI) + ' 万'),
+      row('期望医疗年花销', fmt(f.recMI) + ' 万'),
       row('医疗缺口', fmt(f.miGap) + ' 万'),
       row('健康险合计缺口', fmt(f.totalHealthGap) + ' 万'),
       row('重疾险年保费', fmt(f.estCIPrem) + ' 万'),
@@ -65,7 +65,7 @@ function buildView(r) {
     health: [
       row('建议重疾保额', fmt(s.recCI) + ' 万'),
       row('重疾缺口', fmt(s.ciGap) + ' 万'),
-      row('期望医疗消费', fmt(s.recMI) + ' 万'),
+      row('期望医疗年花销', fmt(s.recMI) + ' 万'),
       row('医疗缺口', fmt(s.miGap) + ' 万'),
       row('健康险合计缺口', fmt(s.totalHealthGap) + ' 万'),
       row('重疾险年保费', fmt(s.estCIPrem) + ' 万'),

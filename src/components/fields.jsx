@@ -3,17 +3,19 @@
 // 表单字段组件：对应小程序 picker / input / switch / checkbox-group
 
 export function Picker({ label, options, value, onChange }) {
+  const norm = options.map((o) => (typeof o === 'string' ? { label: o, value: o } : o));
+  const values = norm.map((o) => o.value);
   return (
     <div className="row">
       <div className="label">{label}</div>
       <select
         className="input select"
-        value={options.includes(value) ? value : ''}
+        value={values.includes(value) ? value : ''}
         onChange={(e) => onChange(e.target.value)}
       >
         <option value="" disabled hidden>请选择</option>
-        {options.map((o) => (
-          <option key={o} value={o}>{o}</option>
+        {norm.map((o) => (
+          <option key={o.value} value={o.value}>{o.label}</option>
         ))}
       </select>
     </div>
