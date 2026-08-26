@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { OPTIONS } from '@/lib/options';
-import { getFormData, saveFormData } from '@/lib/store';
+import { getFormData, saveFormData, isInFlow } from '@/lib/store';
 import { Picker, NumInput } from '@/components/fields';
 
 const PICKERS = {
@@ -27,6 +27,10 @@ export default function BasicPage() {
   const router = useRouter();
   const [form, setForm] = useState(() => ({ ...getFormData() }));
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!isInFlow()) router.replace('/');
+  }, [router]);
 
   const set = (field, value) => setForm((f) => ({ ...f, [field]: value }));
 

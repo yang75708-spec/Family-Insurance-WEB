@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { OPTIONS } from '@/lib/options';
-import { getFormData, saveFormData } from '@/lib/store';
+import { getFormData, saveFormData, isInFlow } from '@/lib/store';
 import { Picker } from '@/components/fields';
 
 const PILLAR_FIELDS = [
@@ -25,6 +25,10 @@ function fieldName(prefix, key) {
 export default function PensionPage() {
   const router = useRouter();
   const [form, setForm] = useState(() => ({ ...getFormData() }));
+
+  useEffect(() => {
+    if (!isInFlow()) router.replace('/');
+  }, [router]);
 
   const set = (field, value) => setForm((f) => ({ ...f, [field]: value }));
 

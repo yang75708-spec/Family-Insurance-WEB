@@ -5,6 +5,7 @@ import { defaultFormData } from './defaultData.js';
 
 let formData = defaultFormData();
 const DRAFT_KEY = 'family_insurance_draft';
+const FLOW_KEY = 'family_insurance_flow';
 
 function readDraft() {
   try {
@@ -48,4 +49,20 @@ export function clearDraft() {
 export function resetFormData() {
   formData = defaultFormData();
   removeDraft();
+}
+
+// 填写流程标记：首页挂载时写入，非首页页面上若无此标记（深层链接/浏览器恢复旧标签页）
+// 则重定向回首页，保证每次进入先落首页、再决定是否询问保留上次数据。
+export function markInFlow() {
+  try {
+    sessionStorage.setItem(FLOW_KEY, '1');
+  } catch (e) {}
+}
+
+export function isInFlow() {
+  try {
+    return sessionStorage.getItem(FLOW_KEY) === '1';
+  } catch (e) {
+    return false;
+  }
 }

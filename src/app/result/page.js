@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { calculate } from '@/lib/calculator';
-import { getFormData, resetFormData } from '@/lib/store';
+import { getFormData, resetFormData, isInFlow } from '@/lib/store';
 
 function fmt(n) {
   if (n === null || n === undefined || isNaN(n)) return '—';
@@ -132,16 +132,23 @@ function buildView(r) {
 
 export default function ResultPage() {
   const router = useRouter();
-  const [view] = useState(() => {
-    const form = getFormData();
-    if (!form) return null;
-    return buildView(calculate(form));
-  });
+  const [view, setView] = useState(null);
 
-  if (!view) {
-    router.replace('/');
-    return null;
-  }
+  useEffect(() => {
+    // 直接打开/浏览器恢复本页（无填写流程标记）→ 回到首页，首页再决定是否询问保留
+    if (!isInFlow()) {
+      router.replace('/');
+      return;
+    }
+    const form = getFormData();
+    if (!form) {
+      router.replace('/');
+      return;
+    }
+    setView(buildView(calculate(form)));
+  }, [router]);
+
+  if (!view) return null;
 
   const renderSection = (title, section) => (
     <div className="card">

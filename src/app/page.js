@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { loadDraft, saveFormData, clearDraft } from '@/lib/store';
+import { loadDraft, saveFormData, clearDraft, markInFlow } from '@/lib/store';
 
 const FEATURES = [
   { icon: '🩺', title: '健康险缺口', desc: '重疾 + 医疗缺口测算，家庭流动资产自动抵扣' },
@@ -16,6 +16,8 @@ export default function Home() {
   const [draft, setDraft] = useState(null);
 
   useEffect(() => {
+    // 进入即视为一次填写流程（供其它页判断深层链接/标签页恢复是否重定向回首页）
+    markInFlow();
     // 有上次本机数据 → 询问是否保留（第一次使用无草稿，直接默认值）
     setDraft(loadDraft());
   }, []);

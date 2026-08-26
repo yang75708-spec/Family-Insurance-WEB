@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { OPTIONS, getMedicalOptions, getMedicalHint } from '@/lib/options';
-import { getFormData, saveFormData } from '@/lib/store';
+import { getFormData, saveFormData, isInFlow } from '@/lib/store';
 import { Picker, NumInput, Switch, CbGroup } from '@/components/fields';
 
 const HI_TYPES = ['社保医保', '惠民保', '百万医疗', '中端医疗', '高端医疗', '重疾险'];
@@ -17,6 +17,10 @@ const EXISTING_NUM = [
 export default function HealthPage() {
   const router = useRouter();
   const [form, setForm] = useState(() => ({ ...getFormData() }));
+
+  useEffect(() => {
+    if (!isInFlow()) router.replace('/');
+  }, [router]);
 
   const set = (field, value) => setForm((f) => ({ ...f, [field]: value }));
   const memberValues = (m) => HI_TYPES.reduce((acc, t) => { acc[t] = !!form[m + '_' + t]; return acc; }, {});
