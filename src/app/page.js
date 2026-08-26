@@ -1,6 +1,8 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { loadDraft, saveFormData, clearDraft } from '@/lib/store';
 
 const FEATURES = [
   { icon: '🩺', title: '健康险缺口', desc: '重疾 + 医疗缺口测算，家庭流动资产自动抵扣' },
@@ -11,6 +13,23 @@ const FEATURES = [
 
 export default function Home() {
   const router = useRouter();
+  const [draft, setDraft] = useState(null);
+
+  useEffect(() => {
+    // 有上次本机数据 → 询问是否保留（第一次使用无草稿，直接默认值）
+    setDraft(loadDraft());
+  }, []);
+
+  function keep() {
+    if (draft) saveFormData(draft);
+    setDraft(null);
+  }
+
+  function discard() {
+    clearDraft();
+    setDraft(null);
+  }
+
   return (
     <div className="home">
       <div className="hero">
@@ -38,6 +57,19 @@ export default function Home() {
       <div className="home-footer">
         <button className="btn-primary" onClick={() => router.push('/basic')}>开始评估</button>
       </div>
+
+      {draft && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-title">保留上次数据？</div>
+            <div className="modal-desc">检测到本机保存的填写数据，是否保留并继续填写？</div>
+            <div className="modal-actions">
+              <button className="btn" onClick={discard}>不保留</button>
+              <button className="btn-primary" onClick={keep}>保留</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

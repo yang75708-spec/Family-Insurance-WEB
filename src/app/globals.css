@@ -256,6 +256,54 @@ select.input {
   width: 100%;
 }
 
+/* 首页弹窗：是否保留上次数据 */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 14px;
+  padding: 24px 20px;
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+}
+
+.modal-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 10px;
+}
+
+.modal-desc {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.modal-actions .btn,
+.modal-actions .btn-primary {
+  flex: 1;
+  padding: 10px 0;
+  font-size: 15px;
+}
+
 /* ── 结果页 ── */
 .summary-head {
   display: flex;
