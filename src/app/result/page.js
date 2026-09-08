@@ -272,10 +272,10 @@ export default function ResultPage() {
       </div>
 
       {/* ── ② 四宫格保障模块 ── */}
-      <div className="card" style={{ paddingBottom: '6px' }}>
-        <div className="card-title">四块家庭保障</div>
-        <div className="card-sub">以「建议保额 / 缺口」两项核心指标，帮您快速判断每一块是否需要出手。</div>
-        <div className="mod-grid" style={{ marginTop: '14px' }}>
+      <section className="block">
+        <h3 className="block-title">四块家庭保障</h3>
+        <p className="block-sub">以「建议保额 / 缺口」两项核心指标，帮您快速判断每一块是否需要出手。</p>
+        <div className="mod-grid">
           {view.modules.map((m) => (
             <div className="mod-card" key={m.name}>
               <div className="mod-head">
@@ -288,13 +288,13 @@ export default function ResultPage() {
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* ── ③ 成员保障档案 ── */}
-      <div className="card" style={{ paddingBottom: '6px' }}>
-        <div className="card-title">家庭成员保障档案</div>
-        <div className="card-sub">每个人看的重点不一样：经济支柱看重疾与寿险，孩子看成长，长辈看医疗。</div>
-        <div className="archive" style={{ marginTop: '14px' }}>
+      <section className="block">
+        <h3 className="block-title">家庭成员保障档案</h3>
+        <p className="block-sub">每个人看的重点不一样：经济支柱看重疾与寿险，孩子看成长，长辈看医疗。</p>
+        <div className="archive">
           {view.members.map((mb) => (
             <div className="member-card" key={mb.title}>
               <div className="m-head">
@@ -309,12 +309,12 @@ export default function ResultPage() {
                   <span key={g.t} className={'m-chip' + (g.v > 30 ? ' danger' : '')}>「{g.t}」缺口 {fmt(g.v)} 万</span>
                 ))}
               </div>
-              {mb.med && <div className="m-chip" style={{ marginTop: '-4px' }}>医疗建议 · {mb.med}</div>}
+              {mb.med && <span className="m-chip" style={{ alignSelf: 'flex-start' }}>医疗建议 · {mb.med}</span>}
               <p className="m-note">{mb.note}</p>
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* ── ④ 温暖总结 ── */}
       <div className="card final-note">

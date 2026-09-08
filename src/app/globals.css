@@ -87,9 +87,7 @@ button{font-family:inherit;letter-spacing:.01em}
   box-shadow:var(--shadow-sm);
   backdrop-filter:blur(20px) saturate(1.04);
   -webkit-backdrop-filter:blur(20px) saturate(1.04);
-  transition:transform .4s var(--ease),box-shadow .4s var(--ease);
 }
-.card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
 .card-title{font-size:clamp(17px,2vw,20px);font-weight:600;color:var(--ink);margin:0 0 4px;letter-spacing:.005em}
 .card-sub{font-size:13.5px;color:var(--ink-soft);margin:0 0 14px;line-height:1.7}
 
@@ -452,6 +450,24 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 .final-note .q{font-size:26px;margin-bottom:12px;opacity:.8}
 .final-note p{font-size:clamp(15px,1.9vw,19px);color:var(--ink);line-height:2;margin:0;font-weight:500}
 .final-note .s{font-size:13px;color:var(--ink-soft);margin-top:16px}
+
+/* 结果页区块标题（独立于卡片，避免双重磨砂） */
+.block{margin:clamp(6px,1.6vw,18px) 0 4px}
+.block-title{font-size:clamp(19px,2.2vw,24px);font-weight:600;color:var(--ink);margin:12px 2px 4px;letter-spacing:-.005em}
+.block-sub{font-size:13.5px;color:var(--ink-soft);margin:0 2px 20px;line-height:1.8;max-width:56em}
+
+/* 交错入场（慢、柔） */
+.feature-card,.mod-card,.member-card{animation:fadeUp .8s var(--ease) both}
+.feature-card:nth-child(2),.mod-card:nth-child(2),.member-card:nth-child(2){animation-delay:.08s}
+.feature-card:nth-child(3),.mod-card:nth-child(3),.member-card:nth-child(3){animation-delay:.16s}
+.feature-card:nth-child(4),.mod-card:nth-child(4),.member-card:nth-child(4){animation-delay:.24s}
+.member-card:nth-child(5){animation-delay:.32s}
+
+/* 触屏设备：去掉 hover 上浮，避免“粘住” */
+@media (hover:none){
+  .card:hover,.feature-card:hover,.mod-card:hover,.member-card:hover{transform:none}
+  .btn:hover,.btn-primary:hover,.btn-start:hover,.pill:hover,.chip:hover{transform:none}
+}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001s!important;transition-duration:.001s!important}
