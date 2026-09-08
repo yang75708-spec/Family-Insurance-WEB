@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { OPTIONS } from '@/lib/options';
 import { getFormData, saveFormData, isInFlow } from '@/lib/store';
 import { Picker } from '@/components/fields';
+import JourneyBar from '@/components/JourneyBar';
 
 const PILLAR_FIELDS = [
   { key: 'retireAge', label: '预计退休年龄', options: OPTIONS.retireAge },
@@ -56,7 +57,8 @@ export default function PensionPage() {
 
   return (
     <div className="page">
-      <div className="tip" style={{ marginBottom: '16px' }}>第 4 / 4 步：填写养老目标与已有储备，工具将测算退休前每年还需投入多少（按 58.3% 替代率上限修正目标）。</div>
+      <JourneyBar index={4} />
+      <p className="step-hint">填写养老目标与已有储备，工具将按 58.3% 替代率上限修正目标，测算退休前每年还需投入多少。</p>
       {card('firstPerson', '第一经济支柱 · 养老')}
       {card('secondPerson', '第二经济支柱 · 养老')}
       <div className="footer">

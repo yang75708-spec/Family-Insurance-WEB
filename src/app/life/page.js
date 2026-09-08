@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { OPTIONS } from '@/lib/options';
 import { getFormData, saveFormData, isInFlow } from '@/lib/store';
 import { Picker, NumInput, Switch } from '@/components/fields';
+import JourneyBar from '@/components/JourneyBar';
 
 export default function LifePage() {
   const router = useRouter();
@@ -42,7 +43,8 @@ export default function LifePage() {
 
   return (
     <div className="page">
-      <div className="tip" style={{ marginBottom: '16px' }}>第 3 / 4 步：寿险保额按「支出缺口」与「收入损失」两种算法取较大值。若已配置寿险，请填写已有保额与缴费年限。</div>
+      <JourneyBar index={3} />
+      <p className="step-hint">寿险保额按「支出缺口」与「收入损失」两种算法取较大值；若已配置寿险，请补上已有保额与缴费年限。</p>
 
       <div className="card">
         <div className="card-title">第一经济支柱 · 寿险</div>

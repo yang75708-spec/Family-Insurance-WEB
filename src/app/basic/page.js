@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { OPTIONS } from '@/lib/options';
 import { getFormData, saveFormData, isInFlow } from '@/lib/store';
 import { Picker, NumInput } from '@/components/fields';
+import JourneyBar from '@/components/JourneyBar';
 
 const PICKERS = {
   city: OPTIONS.city,
@@ -51,7 +52,8 @@ export default function BasicPage() {
 
   return (
     <div className="page">
-      <div className="tip" style={{ marginBottom: '16px' }}>第 1 / 4 步：先填写家庭结构与财务底数，后续步骤将据此测算保障缺口。</div>
+      <JourneyBar index={1} />
+      <p className="step-hint">先补充家庭结构与财务底数，后续将据此测算健康、寿险与养老三块保障缺口。</p>
 
       <div className="card">
         <div className="card-title">家庭成员</div>

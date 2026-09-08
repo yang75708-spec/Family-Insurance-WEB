@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { OPTIONS, getMedicalOptions, getMedicalHint } from '@/lib/options';
 import { getFormData, saveFormData, isInFlow } from '@/lib/store';
 import { Picker, NumInput, Switch, CbGroup } from '@/components/fields';
+import JourneyBar from '@/components/JourneyBar';
 
 const HI_TYPES = ['社保医保', '惠民保', '百万医疗', '中端医疗', '高端医疗', '重疾险'];
 
@@ -70,7 +71,8 @@ export default function HealthPage() {
 
   return (
     <div className="page">
-      <div className="tip" style={{ marginBottom: '16px' }}>第 2 / 4 步：勾选家庭成员已有的医疗/重疾险种，并设置期望医疗年花销与保费预算。勾选险种的有效保额会自动参与缺口测算。</div>
+      <JourneyBar index={2} />
+      <p className="step-hint">勾选家庭成员已有的医疗 / 重疾险种，并设置期望医疗年花销与保费预算；勾选的险种会按有效保额自动参与缺口测算。</p>
 
       <div className="card">
         <div className="card-title">家庭系数与缴费方式</div>
