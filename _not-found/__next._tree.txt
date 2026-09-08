@@ -1,2 +1,2 @@
-:HL["/Family-Insurance-WEB/_next/static/chunks/26exbq-ywxqc8.css","style"]
-0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"/_not-found","param":null,"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}},"staleTime":300,"buildId":"fS3kMEdRBk_bCSL205Lv_"}
+:HL["/Family-Insurance-WEB/_next/static/chunks/0hy_rumscvphe.css","style"]
+0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"/_not-found","param":null,"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}},"staleTime":300,"buildId":"OzmXaBYJ7ccO2oQ3HzhZ7"}
