@@ -6,46 +6,29 @@ import { calculate } from '@/lib/calculator';
 import { getFormData, resetFormData, isInFlow } from '@/lib/store';
 import JourneyBar from '@/components/JourneyBar';
 
-/* ---------- 纯展示辅助：不参与任何算法，仅用于把数字讲清楚 ---------- */
+/* ---------- 纯展示辅助：不参与算法，仅负责“把账讲清楚” ---------- */
 function clamp(n, lo, hi) { return Math.max(lo, Math.min(hi, n)); }
-
-function fmt(n) {
-  if (n === null || n === undefined || isNaN(n)) return '—';
-  const v = Math.round(n * 100) / 100;
-  return String(v);
-}
-
-function fmtPct(n) {
-  if (n === null || n === undefined || isNaN(n)) return '—';
-  return Math.round(n * 1000) / 10 + '%';
-}
-
-function row(label, value, cls) {
-  return { label, value: String(value), cls: cls || '' };
-}
-
-function budgetCls(str) {
-  return str.indexOf('✅') === 0 ? 'ok' : str.indexOf('⚠️') === 0 ? 'danger' : '';
-}
+function fmt(n) { return n === null || n === undefined || isNaN(n) ? '—' : String(Math.round(n * 100) / 100); }
+function zero(n) { return n && !isNaN(n) ? n : 0; }
+function isGap(x) { return zero(x) > 0.005; }
 
 function riskMeta(level) {
-  const map = {
-    低风险: { cls: 'ok', label: '低风险', color: '#8FAF9A' },
-    中等风险: { cls: 'warn', label: '中等风险', color: '#D8BE8F' },
-    高风险: { cls: 'danger', label: '高风险', color: '#C0604F' },
-  };
-  return map[level] || map.中等风险;
+  return {
+    低风险: { cls: 'ok', label: '低风险', color: '#6F8072' },
+    中等风险: { cls: 'warn', label: '中等风险', color: '#C0A26B' },
+    高风险: { cls: 'danger', label: '高风险', color: '#B56A5A' },
+  }[level] || { cls: 'warn', label: '中等风险', color: '#C0A26B' };
 }
 
 function riskWord(level, priority) {
   if (level === '低风险')
-    return '您家的保障基础已经比较扎实，预算也处在健康区间。接下来只需按建议定期复核，让这份安全感一直陪伴家人。';
+    return '您家的保障结构已经比较扎实，预算也处在健康区间。接下来只需按建议定期复核，让这份安心一直陪伴家人。';
   if (level === '高风险')
-    return '目前保障仍有较明显的缺口。别担心，规划是一步步来的——建议从健康保障开始优先补齐，给家人更多从容。';
-  return `家庭保障已初步覆盖，但仍有部分缺口值得补足。建议${priority ? '优先关注「' + priority + '」' : '优先从健康保障开始'}，逐步加固。`;
+    return '目前保障仍有较明显缺口。别担心，规划是一步步来的——建议从健康保障开始优先补齐，给家人更多从容。';
+  return `家庭保障已初步覆盖，但仍有一些值得补足的缺口。${priority ? '建议优先关注「' + priority + '」' : '建议从健康保障开始'}，逐步加固。`;
 }
 
-/* rAF 缓动数值（仅表现层） */
+/* rAF 缓动数值（表现层） */
 function useTween(to, dur = 1200) {
   const [v, setV] = useState(0);
   useEffect(() => {
@@ -61,119 +44,126 @@ function useTween(to, dur = 1200) {
   }, [to, dur]);
   return v;
 }
-
-/* 卡片内缺口条入场 */
-function useGrow(delay = 140) {
+function useGrow(delay = 200) {
   const [g, setG] = useState(false);
-  useEffect(() => {
-    const id = setTimeout(() => setG(true), delay);
-    return () => clearTimeout(id);
-  }, [delay]);
+  useEffect(() => { const id = setTimeout(() => setG(true), delay); return () => clearTimeout(id); }, [delay]);
   return g;
 }
 
-function useCount(to) { return useTween(to, 1200); }
+/* 缺口占比条 */
+function gapItem(name, emoji, gap) {
+  return { name, emoji, gap: zero(gap), covered: !isGap(gap) };
+}
+function pillClass(x) {
+  if (x <= 20) return 'ok';
+  if (x <= 60) return 'warn';
+  return 'danger';
+}
 
 /* ---------- 视图组装 ---------- */
 function buildView(r) {
   const f = r.firstPerson;
   const s = r.secondPerson;
 
-  const first = {
-    health: [
-      row('建议重疾保额', fmt(f.recCI) + ' 万', 'big'),
-      row('重疾缺口', fmt(f.ciGap) + ' 万'),
-      row('期望医疗年花销', fmt(f.recMI) + ' 万'),
-      row('医疗缺口', fmt(f.miGap) + ' 万'),
-      row('健康险合计缺口', fmt(f.totalHealthGap) + ' 万'),
-      row('重疾险年保费', fmt(f.estCIPrem) + ' 万'),
-      row('医疗险年保费', fmt(f.estMIPrem) + ' 万'),
-      row('年保费合计', fmt(f.totalHealthPrem) + ' 万'),
-      row('预算检验', f.healthBudget, budgetCls(f.healthBudget)),
-    ],
-    life: [
-      row('建议寿险保额', fmt(f.recLife) + ' 万', 'big'),
-      row('已有寿险', fmt(f.existingLife) + ' 万'),
-      row('寿险缺口', fmt(f.lifeGap) + ' 万'),
-      row('年保费', fmt(f.estLifePrem) + ' 万'),
-      row('期限建议', f.lifeTerm),
-      row('预算检验', f.lifeBudget, budgetCls(f.lifeBudget)),
-    ],
-    pension: [
-      row('每年建议投入', fmt(f.recPension) + ' 万', 'big'),
-      row('退休年目标', fmt(f.annualRetireGoal) + ' 万'),
-      row('已有储备终值', fmt(f.existingPensionFV) + ' 万'),
-      row('养老缺口', fmt(f.pensionGap) + ' 万'),
-      row('缴费年限', f.payYears + ' 年'),
-      row('预算检验', f.pensionBudget, budgetCls(f.pensionBudget)),
-    ],
-  };
+  // 四宫格保障模块（家庭口径汇总，全部来自 calculator 既有数值）
+  const modules = [
+    {
+      name: '重疾保障', ico: '🩺', metric: fmt(zero(f.recCI) + zero(s.recCI) + zero(r.child.recCI)),
+      unit: '万 · 建议保额',
+      sub: () => {
+        const gap = zero(f.ciGap) + zero(s.ciGap) + zero(r.child.ciGap);
+        const prem = zero(f.estCIPrem) + zero(s.estCIPrem);
+        return <>重疾缺口 <b>{fmt(gap)} 万</b> · 建议年保费 {fmt(prem)} 万</>;
+      },
+      state: pillClass(zero(f.ciGap) + zero(s.ciGap)),
+    },
+    {
+      name: '医疗保障', ico: '💊', metric: fmt(zero(f.recMI) + zero(s.recMI)),
+      unit: '万 · 期望花销',
+      sub: () => {
+        const gap = zero(f.miGap) + zero(s.miGap);
+        const prem = zero(f.estMIPrem) + zero(s.estMIPrem);
+        return <>医疗缺口 <b>{fmt(gap)} 万</b> · 建议年保费 {fmt(prem)} 万</>;
+      },
+      state: pillClass(zero(f.miGap) + zero(s.miGap)),
+    },
+    {
+      name: '寿险保障', ico: '🛡️', metric: fmt(zero(f.recLife) + zero(s.recLife)),
+      unit: '万 · 建议保额',
+      sub: () => {
+        const gap = zero(f.lifeGap) + zero(s.lifeGap);
+        const prem = zero(f.estLifePrem) + zero(s.estLifePrem);
+        return <>寿险缺口 <b>{fmt(gap)} 万</b> · 建议年保费 {fmt(prem)} 万</>;
+      },
+      state: pillClass(zero(f.lifeGap) + zero(s.lifeGap)),
+    },
+    {
+      name: '养老规划', ico: '🌅', metric: fmt(zero(f.recPension) + zero(s.recPension)),
+      unit: '万 / 年建议',
+      sub: () => {
+        const gap = zero(f.pensionGap) + zero(s.pensionGap);
+        const fv = zero(f.existingPensionFV) + zero(s.existingPensionFV);
+        return <>养老缺口 <b>{fmt(gap)} 万</b> · 已有储备终值 {fmt(fv)} 万</>;
+      },
+      state: pillClass(zero(f.pensionGap) + zero(s.pensionGap)),
+    },
+  ];
 
-  const second = {
-    health: [
-      row('建议重疾保额', fmt(s.recCI) + ' 万', 'big'),
-      row('重疾缺口', fmt(s.ciGap) + ' 万'),
-      row('期望医疗年花销', fmt(s.recMI) + ' 万'),
-      row('医疗缺口', fmt(s.miGap) + ' 万'),
-      row('健康险合计缺口', fmt(s.totalHealthGap) + ' 万'),
-      row('重疾险年保费', fmt(s.estCIPrem) + ' 万'),
-      row('医疗险年保费', fmt(s.estMIPrem) + ' 万'),
-      row('年保费合计', fmt(s.totalHealthPrem) + ' 万'),
-      row('预算检验', s.healthBudget, budgetCls(s.healthBudget)),
-    ],
-    life: [
-      row('建议寿险保额', fmt(s.recLife) + ' 万', 'big'),
-      row('已有寿险', fmt(s.existingLife) + ' 万'),
-      row('寿险缺口', fmt(s.lifeGap) + ' 万'),
-      row('年保费', fmt(s.estLifePrem) + ' 万'),
-      row('期限建议', s.lifeTerm),
-      row('预算检验', s.lifeBudget, budgetCls(s.lifeBudget)),
-    ],
-    pension: [
-      row('每年建议投入', fmt(s.recPension) + ' 万', 'big'),
-      row('退休年目标', fmt(s.annualRetireGoal) + ' 万'),
-      row('已有储备终值', fmt(s.existingPensionFV) + ' 万'),
-      row('养老缺口', fmt(s.pensionGap) + ' 万'),
-      row('缴费年限', s.payYears + ' 年'),
-      row('预算检验', s.pensionBudget, budgetCls(s.pensionBudget)),
-    ],
-  };
+  // 成员档案
+  function pillarMember(cls, title, role, P) {
+    const items = [
+      ['重疾', P.ciGap], ['医疗', P.miGap], ['寿险', P.lifeGap], ['养老', P.pensionGap],
+    ].filter(([, v]) => isGap(v)).map(([t, v]) => ({ t, v }));
+    const top = items.length ? items.reduce((a, b) => (b.v > a.v ? b : a)) : null;
+    const ok = items.length === 0;
+    const prem = zero(P.estCIPrem) + zero(P.estMIPrem) + zero(P.estLifePrem) + zero(P.recPension);
+    return {
+      cls, title, role,
+      ok,
+      gaps: ok ? [] : items.slice(0, 3).map(({ t, v }) => ({ t, v })),
+      note: ok
+        ? '保障覆盖较完整，按建议节奏定期复核即可。'
+        : `优先补足「${top.t}」缺口，本年建议投入约 ${fmt(prem)} 万。`,
+      prem: fmt(prem),
+    };
+  }
+
+  const members = [
+    pillarMember('c1', '第一经济支柱', '家庭收入与责任核心', f),
+    pillarMember('c2', '第二经济支柱', '家庭共同防线', s),
+  ];
 
   const child = {
-    rows: [
-      row('建议重疾保额', fmt(r.child.recCI) + ' 万', 'big'),
-      row('重疾缺口', fmt(r.child.ciGap) + ' 万'),
-      row('医疗险建议', r.child.recMIType),
-      row('说明', r.child.miReason, 'muted'),
-      row('寿险', fmt(r.child.recLife) + ' 万'),
-      row('结论', r.child.lifeConclusion),
-    ],
+    cls: 'c3', title: '子女', role: '成长中的下一代',
+    ok: !isGap(r.child.ciGap),
+    gaps: isGap(r.child.ciGap) ? [{ t: '重疾', v: r.child.ciGap }] : [],
+    note: isGap(r.child.ciGap)
+      ? `建议先补足子女重疾保额（${fmt(r.child.recCI)} 万）作为底仓。`
+      : '重疾保障已到位，按年龄增长定期复核即可。',
+    med: r.child.recMIType,
   };
-
   const parent = {
-    rows: [
-      row('医疗险建议', r.parent.recMIType, 'big'),
-      row('说明', r.parent.miReason, 'muted'),
-      row('结论', r.parent.lifeConclusion),
-    ],
+    cls: 'c4', title: '父母', role: '需温柔照护的长辈',
+    ok: false,
+    gaps: [],
+    note: `医疗配置建议以惠民保/百万医疗等为主，关注投保年龄与体况告知。`,
+    med: r.parent.recMIType,
   };
-
-  const covered = (x) => !(x > 0);
+  members.push(child, parent);
 
   return {
     riskLevel: r.riskLevel,
     priority: r.priority,
-    // 原始数值（直接来自 calculator，仅用于展示与动效）
-    gaps: [
-      { name: '健康险缺口', emoji: '🩺', gap: r.totalHealthGap, covered: covered(r.totalHealthGap) },
-      { name: '寿险缺口', emoji: '🛡️', gap: r.totalLifeGap, covered: covered(r.totalLifeGap) },
-      { name: '养老缺口', emoji: '🌅', gap: r.totalPensionGap, covered: covered(r.totalPensionGap) },
-    ],
     totalGap: r.totalGap,
     totalPrem: r.totalAnnualPrem,
     ratio: r.premiumToIncomeRatio,
-    alpha: r.alpha,
-    first, second, child, parent,
+    modules,
+    members,
+    gaps: [
+      gapItem('健康险缺口', '🩺', r.totalHealthGap),
+      gapItem('寿险缺口', '🛡️', r.totalLifeGap),
+      gapItem('养老缺口', '🌅', r.totalPensionGap),
+    ],
   };
 }
 
@@ -182,183 +172,155 @@ export default function ResultPage() {
   const [view, setView] = useState(null);
 
   useEffect(() => {
-    if (!isInFlow()) {
-      router.replace('/');
-      return;
-    }
+    if (!isInFlow()) { router.replace('/'); return; }
     const form = getFormData();
-    if (!form) {
-      router.replace('/');
-      return;
-    }
+    if (!form) { router.replace('/'); return; }
     setView(buildView(calculate(form)));
   }, [router]);
 
-  // 展示口径派生（view 未就绪时用占位，保证 hooks 每次渲染都稳定调用）
+  // 展示口径派生（view 未就绪用占位，保证 hooks 稳定）
   const metrics = view
     ? (() => {
         const risk = riskMeta(view.riskLevel);
-        // 安全指数 = 风险评级基分 + 预算占收入修正 + 缺口清零加成（纯展示，不改算法）
-        const base = { '低风险': 88, '中等风险': 72, '高风险': 54 }[view.riskLevel] || 72;
-        const adj = view.ratio <= 0.06 ? 6 : view.ratio <= 0.10 ? 2 : -4;
+        const base = { 低风险: 92, 中等风险: 76, 高风险: 56 }[view.riskLevel] || 76;
+        const adj = view.ratio <= 0.06 ? 6 : view.ratio <= 0.10 ? 2 : -3;
         const gapBonus = view.totalGap <= 0 ? 6 : 0;
         const score = clamp(Math.round(base + adj + gapBonus), 20, 98);
+        const cover = view.totalGap <= 0 ? 100 : clamp(Math.round(score * 0.92), 25, 96);
         const maxGap = Math.max(0, ...view.gaps.map((g) => (g.covered ? 0 : g.gap)));
-        // 视觉尺度：约 12.5% = 满格
-        const ratioPct = clamp(view.ratio * 100 * 8, 2, 100);
-        return { risk, score, maxGap, ratioPct, allCovered: view.totalGap <= 0 };
+        return { risk, score, cover, maxGap, allCovered: view.totalGap <= 0 };
       })()
-    : { risk: riskMeta('中等风险'), score: 0, maxGap: 0, ratioPct: 2, allCovered: false };
+    : { risk: riskMeta('中等风险'), score: 0, cover: 0, maxGap: 0, allCovered: false };
 
-  const { risk, maxGap, ratioPct, allCovered } = metrics;
-
+  const { risk, maxGap, allCovered } = metrics;
   const scoreV = useTween(metrics.score);
-  const premV = useCount(view ? view.totalPrem : 0);
-  const ratioV = useCount(view ? view.ratio * 100 : 0);
+  const coverV = useTween(metrics.cover);
+  const premV = useTween(view ? zero(view.totalPrem) : 0);
+  const ratioV = useTween(view ? zero(view.ratio) * 100 : 0);
   const grow = useGrow();
 
   if (!view) return null;
 
-  const renderCat = (rows) =>
-    rows.map((x) => {
-      if (x.label === '预算检验') {
-        return (
-          <div key={'b' + x.label + x.value} className="rep-row">
-            <span className="rl">预算检验</span>
-            <span className={'rv rep-chip ' + x.cls}>{x.value.replace('✅ ', '').replace('⚠️ ', '')}</span>
-          </div>
-        );
-      }
-      return (
-        <div key={x.label} className="rep-row">
-          <span className="rl">{x.label}</span>
-          <span className={'rv' + (x.cls === 'big' ? ' big' : x.cls === 'muted' ? ' muted' : '')}>{x.value}</span>
-        </div>
-      );
-    });
-
-  const renderMember = (num, title, member, note) => {
-    const cats = [
-      ['健康险', member.health],
-      ['寿险', member.life],
-      ['养老', member.pension],
-    ].filter(([, rows]) => rows && rows.length);
-    return (
-      <div className="card">
-        <div className="rep-title"><span className="mini">{num}</span>{title}</div>
-        {cats.map(([cat, rows]) => (
-          <div key={cat}>
-            <div className="rep-cat">{cat}</div>
-            {renderCat(rows)}
-          </div>
-        ))}
-        {note}
-      </div>
-    );
-  };
+  const stateTxt = { ok: '状态良好', warn: '尚有缺口', danger: '重点补足' };
 
   return (
     <div className="page">
       <JourneyBar index={5} />
 
       <div className="report-greet">
-        <span className="eyebrow">✨ 测算完成</span>
-        <h2>您家的保障画像已生成</h2>
-        <p>以下结论基于您填写的信息估算，我们已把「缺口」与「建议」整理成一份可读的报告。</p>
+        <span className="eyebrow">体检完成 · 报告已生成</span>
+        <h2>这是您家的保障画像</h2>
+        <p>我们已把缺口与建议整理成一份清晰、可执行的「家庭保障体检报告」。</p>
       </div>
 
-      {/* 1 · 家庭安全指数 */}
-      <div className="card safety-card">
-        <div className="safety-ring">
-          <svg width="190" height="190" viewBox="0 0 190 190">
-            <circle cx="95" cy="95" r="82" fill="none" stroke="rgba(232,216,176,.4)" strokeWidth="14" />
-            <circle
-              cx="95" cy="95" r="82" fill="none"
-              stroke={risk.color} strokeWidth="14" strokeLinecap="round"
-              pathLength="100" strokeDasharray="100"
-              strokeDashoffset={100 - scoreV}
-            />
-          </svg>
-          <div className="ring-core">
-            <div className="ring-num">{Math.round(scoreV)}<em>分</em></div>
-            <div className="ring-tag">家庭安全指数</div>
+      {/* ── ① Dashboard：总览 ── */}
+      <div className="card">
+        <div className="dash-top">
+          <div className="dash-stats">
+            <div className="stat">
+              <div className="s-num tnum">{Math.round(scoreV)}<em>分</em></div>
+              <div className="s-name">综合保障评分</div>
+              <div className="s-sub">基于风险评级与预算占比</div>
+            </div>
+            <div className="stat">
+              <div className="s-num tnum">{Math.round(coverV)}<em>%</em></div>
+              <div className="s-name">当前保障覆盖</div>
+              <div className="s-sub">{allCovered ? '三大保障已覆盖' : '按缺口估算'}</div>
+            </div>
+            <div className="stat">
+              <div className="s-num tnum">{premV.toFixed(1)}<em>万/年</em></div>
+              <div className="s-name">建议年保费</div>
+              <div className="s-sub">约占家庭收入 {ratioV.toFixed(1)}%</div>
+            </div>
+          </div>
+
+          <div className="dash-chart">
+            <div className="cover-ring">
+              <svg viewBox="0 0 200 200" aria-hidden="true">
+                <circle cx="100" cy="100" r="84" fill="none" stroke="rgba(47,52,48,.07)" strokeWidth="15" />
+                <circle cx="100" cy="100" r="84" fill="none"
+                  stroke={risk.color} strokeWidth="15" strokeLinecap="round"
+                  pathLength="100" strokeDasharray="100" strokeDashoffset={100 - coverV} />
+              </svg>
+              <div className="ring-core">
+                <div className="cover-num tnum">{Math.round(coverV)}<em>%</em></div>
+                <div className="cover-tag">综合覆盖率</div>
+              </div>
+            </div>
+            <div className="chart-side">
+              <div className="head">
+                <b>保障缺口概览</b>
+                <span className={'mod-pill ' + risk.cls}>{risk.label}</span>
+              </div>
+              <p className="risk-line">{riskWord(view.riskLevel, view.priority)}</p>
+              {view.gaps.map((g) => (
+                <div className="bar-row" key={g.name}>
+                  <div className="bar-top">
+                    <span className="bar-name">{g.emoji} {g.name}</span>
+                    <span className="bar-val tnum">{g.covered ? '已覆盖' : fmt(g.gap) + ' 万'}</span>
+                  </div>
+                  <div className="bar-track">
+                    <i className={g.covered ? 'done' : ''} style={{
+                      width: grow ? (g.covered ? 100 : maxGap > 0 ? clamp((g.gap / maxGap) * 100, 6, 100) : 0) : 0,
+                    }} />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-        <div className="safety-side">
-          <span className={'safe-pill ' + risk.cls}>
-            {risk.label} {allCovered ? '· 三大保障已覆盖' : ''}
-          </span>
-          <p className="s-name">给家稳稳的托底</p>
-          <p className="s-desc">{riskWord(view.riskLevel, view.priority)}</p>
-        </div>
       </div>
 
-      {/* 2 · 风险缺口分析 */}
-      <div className="card">
-        <div className="card-title">风险缺口分析</div>
-        <div className="card-sub">缺口 = 需要的保障 − 已有的保障，数值越大说明越值得优先补足。</div>
-        <div className="gap-block">
-          {view.gaps.map((g) => (
-            <div className="gap-row" key={g.name}>
-              <div className="gap-top">
-                <span className="gap-name">{g.emoji} {g.name}</span>
-                <span className="gap-val">
-                  {g.covered ? '已覆盖 ✓' : (g.gap < 100 ? fmt(g.gap) : '100+')}
-                  {!g.covered && <small>万</small>}
-                </span>
+      {/* ── ② 四宫格保障模块 ── */}
+      <div className="card" style={{ paddingBottom: '6px' }}>
+        <div className="card-title">四块家庭保障</div>
+        <div className="card-sub">以「建议保额 / 缺口」两项核心指标，帮您快速判断每一块是否需要出手。</div>
+        <div className="mod-grid" style={{ marginTop: '14px' }}>
+          {view.modules.map((m) => (
+            <div className="mod-card" key={m.name}>
+              <div className="mod-head">
+                <div className="mod-ico">{m.ico}</div>
+                <div className="mod-name">{m.name}</div>
               </div>
-              <div className="gap-bar">
-                <i style={{
-                  width: grow ? (g.covered ? 100 : maxGap > 0 ? clamp(g.gap / maxGap * 100, 6, 100) : 0) : 0,
-                  background: g.covered ? 'linear-gradient(90deg,#A9C4B0,#8FAF9A)' : undefined,
-                }} />
-              </div>
+              <div className="mod-metric tnum">{m.metric}<small>{m.unit}</small></div>
+              <div className="mod-sub">{m.sub()}</div>
+              <span className={'mod-pill ' + m.state}>{stateTxt[m.state]}</span>
             </div>
           ))}
         </div>
       </div>
 
-      {/* 3 · 分成员保障建议 */}
-      {renderMember('①', '第一经济支柱 · 保障清单', view.first)}
-      {renderMember('②', '第二经济支柱 · 保障清单', view.second)}
-
-      <div className="card">
-        <div className="rep-title"><span className="mini">👶</span>子女</div>
-        {renderCat(view.child.rows)}
-      </div>
-      <div className="card">
-        <div className="rep-title"><span className="mini">👴</span>父母</div>
-        {renderCat(view.parent.rows)}
-      </div>
-
-      {/* 4 · 预算合理性 */}
-      <div className="card">
-        <div className="card-title">预算合理性</div>
-        <div className="ratio-wrap">
-          <div className="ratio-top">
-            <span>建议年总保费</span>
-            <b>{premV < 1 && view.totalPrem > 0 ? premV.toFixed(1) : Math.round(premV)} 万</b>
-          </div>
-          <div className="ratio-top">
-            <span>占家庭年收入</span>
-            <span>{ratioV.toFixed(1)}%</span>
-          </div>
-          <div className="ratio-bar"><i style={{ width: grow ? ratioPct + '%' : '0%' }} /></div>
-          <div className="tip" style={{ marginTop: '14px' }}>
-            {view.ratio <= 0.06
-              ? '保费占收入比例健康，处于常见参考区间内，不会给家庭现金流带来明显压力。'
-              : view.ratio <= 0.10
-                ? '保费占比尚可，建议按上面给出的建议金额执行，避免挤占日常支出。'
-                : '保费占比偏高，可在每类险种的预算上限内适当调整，不必一次配满。'}
-          </div>
+      {/* ── ③ 成员保障档案 ── */}
+      <div className="card" style={{ paddingBottom: '6px' }}>
+        <div className="card-title">家庭成员保障档案</div>
+        <div className="card-sub">每个人看的重点不一样：经济支柱看重疾与寿险，孩子看成长，长辈看医疗。</div>
+        <div className="archive" style={{ marginTop: '14px' }}>
+          {view.members.map((mb) => (
+            <div className="member-card" key={mb.title}>
+              <div className="m-head">
+                <div className={'m-ava ' + mb.cls}>{mb.cls === 'c1' ? '1' : mb.cls === 'c2' ? '2' : mb.cls === 'c3' ? '3' : '4'}</div>
+                <div>
+                  <div className="m-name">{mb.title}</div>
+                  <div className="m-role">{mb.role}</div>
+                </div>
+              </div>
+              <div className="m-gap">
+                {mb.ok ? <span className="m-chip ok">✓ 保障已覆盖</span> : mb.gaps.map((g) => (
+                  <span key={g.t} className={'m-chip' + (g.v > 30 ? ' danger' : '')}>「{g.t}」缺口 {fmt(g.v)} 万</span>
+                ))}
+              </div>
+              {mb.med && <div className="m-chip" style={{ marginTop: '-4px' }}>医疗建议 · {mb.med}</div>}
+              <p className="m-note">{mb.note}</p>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* 5 · 温暖总结 */}
+      {/* ── ④ 温暖总结 ── */}
       <div className="card final-note">
         <div className="q">🕊️</div>
         <p>{riskWord(view.riskLevel, view.priority)}</p>
-        <p className="s">本报告为区间中值估算，仅作决策参考，具体投保请以持牌保险经纪人或核保人员方案为准。</p>
+        <p className="s">本报告为区间中值估算，仅作决策参考。综合评分与覆盖率为展示口径，具体投保请以持牌保险经纪人或核保人员方案为准。</p>
       </div>
 
       <div className="footer">

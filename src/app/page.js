@@ -35,15 +35,15 @@ export default function Home() {
     <div className="home">
       <section className="hero">
         <div className="hero-copy">
-          <span className="hero-eyebrow">🏡 保小家 · 家庭保障向导</span>
-          <h1 className="hero-title">给家一份<br /><span className="hl">刚刚好的保障</span></h1>
+          <span className="hero-eyebrow">保小家 · 家庭保障顾问</span>
+          <h1 className="hero-title">为家庭建立<br /><span className="hl">更安心的保障结构</span></h1>
           <p className="hero-sub">
-            花 3 分钟聊聊您的家庭与财务，我们把健康、寿险、养老三块「缺口」
-            算清楚——不推销，只告诉您缺什么、补多少。
+            基于家庭收入、责任与生命周期，测算健康、寿险与养老保障缺口，
+            为您生成一份看得懂、能执行的保障方案。
           </p>
           <div className="hero-cta">
             <button className="btn-start" onClick={() => router.push('/basic')}>
-              开始评估<span>→</span>
+              开始规划<span>→</span>
             </button>
           </div>
           <p className="hero-note">数据仅保存在您的浏览器中，可放心填写</p>

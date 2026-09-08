@@ -18,7 +18,7 @@ export default function JourneyBar({ index }) {
       <div className="journey-track">
         <div className="journey-fill" style={{ width: `${pct}%` }} />
       </div>
-      <div className="journey-house" style={{ left: `${pct}%` }} aria-hidden="true">🏠</div>
+      <div className="journey-house" style={{ left: `${pct}%` }} aria-hidden="true">家</div>
       <div className="journey-nodes">
         {STEPS.map((s, i) => (
           <div key={s.label} className={'journey-node' + (i === index ? ' is-now' : i < index ? ' is-done' : '')}>
