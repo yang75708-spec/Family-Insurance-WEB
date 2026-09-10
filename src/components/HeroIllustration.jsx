@@ -44,7 +44,14 @@ export default function HeroIllustration() {
             </g>
           </svg>
           <div className="ring-center">
-            <div className="ring-logo">家</div>
+            <div className="ring-logo" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"
+                strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3.5 10.6 12 3.6l8.5 7" />
+                <path d="M5.5 9.6V20h13V9.6" />
+                <path d="M10 20v-5.4h4V20" />
+              </svg>
+            </div>
             <div className="ring-t"><b>安心，是有结构的</b>家庭保障顾问</div>
           </div>
         </div>

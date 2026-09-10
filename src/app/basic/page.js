@@ -56,32 +56,48 @@ export default function BasicPage() {
       <p className="step-hint">先补充家庭结构与财务底数，后续将据此测算健康、寿险与养老三块保障缺口。</p>
 
       <div className="card">
-        <div className="card-title">家庭成员</div>
-        <NumInput label="第一支柱年龄" value={form.firstPersonAge} onChange={(v) => set('firstPersonAge', v)} placeholder="岁" />
-        <Picker label="第一支柱性别" options={PICKERS.firstPersonGender} value={form.firstPersonGender} onChange={(v) => set('firstPersonGender', v)} />
-        <NumInput label="第二支柱年龄" value={form.secondPersonAge} onChange={(v) => set('secondPersonAge', v)} placeholder="岁" />
-        <Picker label="第二支柱性别" options={PICKERS.secondPersonGender} value={form.secondPersonGender} onChange={(v) => set('secondPersonGender', v)} />
-        <NumInput label="子女年龄" value={form.childAge} onChange={(v) => set('childAge', v)} placeholder="岁（无子女填0）" />
-        <NumInput label="子女数量" value={form.childCount} onChange={(v) => set('childCount', v)} placeholder="个" />
-        <NumInput label="赡养老人数量" value={form.parentSupportCount} onChange={(v) => set('parentSupportCount', v)} placeholder="位" />
-        <Picker label="所在城市" options={PICKERS.city} value={form.city} onChange={(v) => set('city', v)} />
+        <div className="card-title">第一经济支柱</div>
+        <p className="card-sub">家庭收入与责任的核心，保障配置优先考虑。</p>
+        <div className="field-grid">
+          <NumInput label="年龄" value={form.firstPersonAge} onChange={(v) => set('firstPersonAge', v)} placeholder="岁" />
+          <Picker label="性别" options={PICKERS.firstPersonGender} value={form.firstPersonGender} onChange={(v) => set('firstPersonGender', v)} />
+          <Picker label="年收入" options={PICKERS.firstPersonIncome} value={form.firstPersonIncome} onChange={(v) => set('firstPersonIncome', v)} />
+          <Picker label="职业稳定性" options={PICKERS.incomeStability} value={form.incomeStability} onChange={(v) => set('incomeStability', v)} />
+        </div>
       </div>
 
       <div className="card">
-        <div className="card-title">收入与职业稳定性</div>
-        <Picker label="第一支柱年收入" options={PICKERS.firstPersonIncome} value={form.firstPersonIncome} onChange={(v) => set('firstPersonIncome', v)} />
-        <Picker label="第一支柱职业稳定性" options={PICKERS.incomeStability} value={form.incomeStability} onChange={(v) => set('incomeStability', v)} />
-        <Picker label="第二支柱年收入" options={PICKERS.secondPersonIncome} value={form.secondPersonIncome} onChange={(v) => set('secondPersonIncome', v)} />
-        <Picker label="第二支柱职业稳定性" options={PICKERS.incomeStability2} value={form.incomeStability2} onChange={(v) => set('incomeStability2', v)} />
+        <div className="card-title">第二经济支柱</div>
+        <p className="card-sub">家庭共同防线；若为单收入家庭，年龄可留空。</p>
+        <div className="field-grid">
+          <NumInput label="年龄" value={form.secondPersonAge} onChange={(v) => set('secondPersonAge', v)} placeholder="岁" />
+          <Picker label="性别" options={PICKERS.secondPersonGender} value={form.secondPersonGender} onChange={(v) => set('secondPersonGender', v)} />
+          <Picker label="年收入" options={PICKERS.secondPersonIncome} value={form.secondPersonIncome} onChange={(v) => set('secondPersonIncome', v)} />
+          <Picker label="职业稳定性" options={PICKERS.incomeStability2} value={form.incomeStability2} onChange={(v) => set('incomeStability2', v)} />
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-title">子女与长辈</div>
+        <p className="card-sub">子女与父母的保障配置会参考这些信息。</p>
+        <div className="field-grid">
+          <NumInput label="子女年龄" value={form.childAge} onChange={(v) => set('childAge', v)} placeholder="岁（无子女填0）" />
+          <NumInput label="子女数量" value={form.childCount} onChange={(v) => set('childCount', v)} placeholder="个" />
+          <NumInput label="赡养老人数量" value={form.parentSupportCount} onChange={(v) => set('parentSupportCount', v)} placeholder="位" />
+          <Picker label="所在城市" options={PICKERS.city} value={form.city} onChange={(v) => set('city', v)} />
+        </div>
       </div>
 
       <div className="card">
         <div className="card-title">资产负债与开支</div>
-        <Picker label="房贷余额" options={PICKERS.mortgageBalance} value={form.mortgageBalance} onChange={(v) => set('mortgageBalance', v)} />
-        <Picker label="其他贷款" options={PICKERS.otherLoanAmount} value={form.otherLoanAmount} onChange={(v) => set('otherLoanAmount', v)} />
-        <Picker label="银行存款" options={PICKERS.bankDeposit} value={form.bankDeposit} onChange={(v) => set('bankDeposit', v)} />
-        <Picker label="低风险理财" options={PICKERS.lowRiskInvestment} value={form.lowRiskInvestment} onChange={(v) => set('lowRiskInvestment', v)} />
-        <Picker label="家庭年生活支出" options={PICKERS.annualExpense} value={form.annualExpense} onChange={(v) => set('annualExpense', v)} />
+        <p className="card-sub">流动资产将用于自动抵扣健康险缺口。</p>
+        <div className="field-grid">
+          <Picker label="房贷余额" options={PICKERS.mortgageBalance} value={form.mortgageBalance} onChange={(v) => set('mortgageBalance', v)} />
+          <Picker label="其他贷款" options={PICKERS.otherLoanAmount} value={form.otherLoanAmount} onChange={(v) => set('otherLoanAmount', v)} />
+          <Picker label="银行存款" options={PICKERS.bankDeposit} value={form.bankDeposit} onChange={(v) => set('bankDeposit', v)} />
+          <Picker label="低风险理财" options={PICKERS.lowRiskInvestment} value={form.lowRiskInvestment} onChange={(v) => set('lowRiskInvestment', v)} />
+          <Picker label="家庭年生活支出" options={PICKERS.annualExpense} value={form.annualExpense} onChange={(v) => set('annualExpense', v)} />
+        </div>
       </div>
 
       {error && <div className="tip" style={{ color: '#c62828', background: '#fdecea' }}>{error}</div>}

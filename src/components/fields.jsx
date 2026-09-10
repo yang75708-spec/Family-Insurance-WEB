@@ -1,6 +1,6 @@
 'use client';
 
-// 表单字段组件：暖调胶囊 / 数字输入 / 分段开关 / 多选 chips
+// 表单字段组件：原生下拉 / 数字输入 / 是否下拉 / 原生多选
 
 function unitOf(placeholder) {
   if (!placeholder) return null;
@@ -11,24 +11,23 @@ function unitOf(placeholder) {
   return null;
 }
 
-export function Picker({ label, options, value, onChange, hint }) {
-  const opts = options.map((o) => (typeof o === 'string' ? { label: o, value: o } : o));
+export function Picker({ label, options, value, onChange }) {
+  const opts = (options || []).map((o) => (typeof o === 'string' ? { label: o, value: o } : o));
   return (
     <div className="field">
-      <div className="field-label">{label}{hint ? <span className="hint">{hint}</span> : null}</div>
-      <div className="pill-row" role="radiogroup" aria-label={label}>
-        {opts.map((o) => (
-          <button
-            key={o.value}
-            type="button"
-            role="radio"
-            aria-checked={o.value === value}
-            className={'pill' + (o.value === value ? ' is-on' : '')}
-            onClick={() => onChange(o.value)}
-          >
-            {o.label}
-          </button>
-        ))}
+      <div className="field-label">{label}</div>
+      <div className="dd">
+        <select
+          className="dd-select"
+          aria-label={label}
+          value={value === undefined || value === null ? '' : value}
+          onChange={(e) => onChange(e.target.value)}
+        >
+          <option value="" disabled>请选择</option>
+          {opts.map((o) => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
       </div>
     </div>
   );
@@ -57,11 +56,16 @@ export function Switch({ label, checked, onChange }) {
   return (
     <div className="field">
       <div className="field-label">{label}</div>
-      <div className="seg" role="radiogroup" aria-label={label}>
-        <button type="button" role="radio" aria-checked={!!checked}
-          className={checked ? 'is-on' : ''} onClick={() => onChange(true)}>是</button>
-        <button type="button" role="radio" aria-checked={!checked}
-          className={!checked ? 'is-on' : ''} onClick={() => onChange(false)}>否</button>
+      <div className="dd">
+        <select
+          className="dd-select"
+          aria-label={label}
+          value={checked ? '是' : '否'}
+          onChange={(e) => onChange(e.target.value === '是')}
+        >
+          <option value="是">是</option>
+          <option value="否">否</option>
+        </select>
       </div>
     </div>
   );
@@ -69,18 +73,13 @@ export function Switch({ label, checked, onChange }) {
 
 export function CbGroup({ types, values, onToggle }) {
   return (
-    <div className="chip-group" role="group">
+    <div className="check-group" role="group">
       {types.map((t) => (
-        <button
-          key={t}
-          type="button"
-          role="checkbox"
-          aria-checked={!!values[t]}
-          className={'chip' + (values[t] ? ' is-on' : '')}
-          onClick={() => onToggle(t)}
-        >
-          {values[t] ? '✓ ' : ''}{t}
-        </button>
+        <label key={t} className="check-item">
+          <input type="checkbox" checked={!!values[t]} onChange={() => onToggle(t)} />
+          <span className="check-box" aria-hidden="true" />
+          <span>{t}</span>
+        </label>
       ))}
     </div>
   );

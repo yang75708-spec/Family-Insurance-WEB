@@ -112,48 +112,40 @@ button{font-family:inherit;letter-spacing:.01em}
 .field:last-child{padding-bottom:4px}
 .field-label{font-size:15.5px;font-weight:600;color:var(--ink);margin-bottom:12px;display:flex;align-items:baseline;gap:8px}
 .field-label .hint{font-size:12px;color:var(--ink-faint);font-weight:400}
+.field-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:0 clamp(18px,3vw,40px)}
 
-/* 胶囊单选（横向滚动） */
-.pill-row{
-  display:flex;gap:10px;overflow-x:auto;
-  padding:3px 3px 10px;
-  scrollbar-width:none;-webkit-overflow-scrolling:touch;
-}
-.pill-row::-webkit-scrollbar{display:none}
-.pill{
-  flex:0 0 auto;cursor:pointer;
-  background:rgba(255,255,255,.66);
+/* 选项下拉（原生 select 高级化，非胶囊） */
+.dd{position:relative}
+.dd-select{
+  width:100%;appearance:none;-webkit-appearance:none;
+  background:rgba(255,255,255,.7);
   border:1px solid rgba(47,52,48,.12);
-  color:var(--ink-soft);
-  border-radius:var(--r-pill);
-  padding:10px 20px;font-size:14.5px;white-space:nowrap;
-  transition:all .28s var(--ease);
-  -webkit-tap-highlight-color:transparent;
-}
-.pill:active{transform:scale(.97)}
-.pill:hover{border-color:rgba(111,128,114,.4);color:var(--forest-deep)}
-.pill.is-on{
-  background:rgba(111,128,114,.13);
-  border-color:rgba(111,128,114,.45);
-  color:var(--forest-deep);
-  font-weight:600;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.35);
-}
-
-/* 多选 chips */
-.chip-group{display:flex;flex-wrap:wrap;gap:10px;padding:2px 0 6px}
-.chip{
+  border-radius:var(--r-md);
+  padding:13px 46px 13px 18px;
+  font-size:15px;color:var(--ink);
   cursor:pointer;
-  background:rgba(255,255,255,.66);
-  border:1px solid rgba(47,52,48,.12);
-  color:var(--ink-soft);
-  border-radius:var(--r-pill);
-  padding:10px 18px;font-size:14px;
-  transition:all .28s var(--ease);
-  -webkit-tap-highlight-color:transparent;
+  transition:border-color .3s,box-shadow .3s,background .3s;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
 }
-.chip:active{transform:scale(.97)}
-.chip.is-on{background:rgba(124,142,124,.16);border-color:rgba(124,142,124,.5);color:var(--good);font-weight:600}
+.dd-select:hover{background:rgba(255,255,255,.88)}
+.dd-select:focus{border-color:rgba(111,128,114,.45);outline:none;box-shadow:0 0 0 4px rgba(111,128,114,.12)}
+.dd-select::-ms-expand{display:none}
+.dd::after{
+  content:"";position:absolute;right:20px;top:50%;
+  width:8px;height:8px;
+  border-right:1.8px solid var(--forest);border-bottom:1.8px solid var(--forest);
+  transform:translateY(-72%) rotate(45deg);pointer-events:none;
+}
+
+/* 多选：原生复选框（去胶囊） */
+.check-group{display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:2px 22px;margin:4px 0 2px}
+.check-item{display:flex;align-items:center;gap:11px;cursor:pointer;font-size:15px;color:var(--ink);padding:9px 2px;position:relative;-webkit-tap-highlight-color:transparent}
+.check-item input{position:absolute;opacity:0;pointer-events:none}
+.check-box{width:22px;height:22px;border-radius:7px;border:1.5px solid rgba(47,52,48,.2);background:rgba(255,255,255,.85);flex:0 0 auto;transition:all .2s var(--ease);position:relative}
+.check-item:hover .check-box{border-color:rgba(111,128,114,.55)}
+.check-item input:checked + .check-box{background:var(--forest);border-color:var(--forest)}
+.check-item input:checked + .check-box::after{content:"";position:absolute;left:7px;top:3px;width:6px;height:11px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.check-item input:focus-visible + .check-box{outline:2px solid rgba(111,128,114,.5);outline-offset:2px}
 
 /* 数字输入 */
 .num-box{
@@ -174,11 +166,6 @@ button{font-family:inherit;letter-spacing:.01em}
 .num-box input::placeholder{color:var(--ink-faint)}
 input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 input[type=number]{-moz-appearance:textfield;appearance:textfield}
-
-/* 是 / 否 分段 */
-.seg{display:inline-flex;background:rgba(255,255,255,.7);border:1px solid rgba(47,52,48,.1);border-radius:var(--r-pill);padding:4px;gap:2px;backdrop-filter:blur(20px)}
-.seg button{border:none;background:transparent;color:var(--ink-soft);font-size:14px;padding:8px 24px;border-radius:var(--r-pill);cursor:pointer;transition:all .25s var(--ease)}
-.seg button.is-on{background:var(--forest);color:#fff;font-weight:600;box-shadow:0 6px 16px rgba(111,128,114,.28)}
 
 /* ---------------- 按钮与底部栏 ---------------- */
 .btn,.btn-primary{
@@ -247,12 +234,12 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 /* ============================================================
    首页 · 家庭保障顾问
    ============================================================ */
-.home{padding:clamp(14px,3vw,34px) 0 30px;animation:riseIn .7s var(--ease) both}
+.home{padding:clamp(8px,2vw,22px) 0 30px;animation:riseIn .7s var(--ease) both}
 
 .hero{
   display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
   align-items:center;gap:clamp(20px,4vw,60px);
-  padding:clamp(30px,6vw,80px) clamp(6px,2vw,26px) clamp(40px,6vw,70px);
+  padding:clamp(16px,3.4vw,44px) clamp(6px,2vw,26px) clamp(24px,3.4vw,40px);
 }
 .hero-eyebrow{
   display:inline-flex;align-items:center;gap:8px;
@@ -261,8 +248,8 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
   animation:riseInBig .8s var(--ease) both;
 }
 .hero-title{
-  font-size:clamp(34px,5.2vw,62px);line-height:1.12;letter-spacing:-.01em;
-  font-weight:600;margin:22px 0 18px;color:var(--ink);
+  font-size:clamp(32px,4.6vw,56px);line-height:1.12;letter-spacing:-.01em;
+  font-weight:600;margin:18px 0 16px;color:var(--ink);
   animation:riseInBig .8s var(--ease) .1s both;
 }
 .hero-title .hl{color:var(--forest)}
@@ -288,7 +275,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 .hero-note::before{content:"·";margin-right:8px;color:var(--forest)}
 
 /* 首页右侧：保障场景（玻璃卡 + 环形覆盖 + 柔光斑） */
-.hero-scene{position:relative;min-height:clamp(360px,40vw,560px);animation:riseInBig 1s var(--ease) .12s both}
+.hero-scene{position:relative;min-height:clamp(280px,31vw,420px);animation:riseInBig 1s var(--ease) .12s both}
 .scene-blob{position:absolute;border-radius:50%;filter:blur(46px);opacity:.75}
 .scene-blob.b1{width:340px;height:340px;background:radial-gradient(circle at 35% 35%,#E4EBE3,#A8B5A2 70%);top:6%;left:4%;animation:floaty 13s ease-in-out infinite}
 .scene-blob.b2{width:300px;height:300px;background:radial-gradient(circle at 60% 60%,#EFE9DC,#D8CBB8 75%);bottom:0;right:2%;animation:floaty 16s ease-in-out infinite}
@@ -301,8 +288,9 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
   position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
 }
 .ring-logo{width:74px;height:74px;border-radius:24px;background:linear-gradient(135deg,#76877B,#5A6B5E);color:#fff;
-  display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 14px 30px rgba(90,107,94,.3);
+  display:flex;align-items:center;justify-content:center;box-shadow:0 14px 30px rgba(90,107,94,.3);
   animation:floaty 7s ease-in-out infinite;margin-bottom:16px}
+.ring-logo svg{width:36px;height:36px}
 .ring-t{font-size:13px;color:var(--ink-soft);letter-spacing:.06em;margin-top:6px;line-height:1.5}
 .ring-t b{display:block;font-size:19px;color:var(--ink);letter-spacing:0;font-weight:600;margin-bottom:4px}
 .glass-card{
@@ -324,20 +312,6 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 .sprig-1{top:4%;left:14%;animation:sway 8s ease-in-out infinite alternate;transform-origin:bottom center}
 .sprig-2{bottom:22%;right:-1%;animation:sway 10s ease-in-out infinite alternate;transform-origin:bottom center}
 .scene-dot{position:absolute;width:7px;height:7px;border-radius:50%;background:var(--beige);opacity:.7;animation:twinkle 5s ease-in-out infinite}
-
-/* 下方能力卡 */
-.feature-wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(14px,1.8vw,20px);margin:4px 0 6px}
-.feature-card{
-  background:var(--card);border:1px solid var(--line-card);
-  border-radius:26px;padding:24px 22px;
-  box-shadow:var(--shadow-sm);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
-  transition:transform .4s var(--ease),box-shadow .4s var(--ease);
-}
-.feature-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}
-.feature-ico{width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;
-  font-size:22px;background:linear-gradient(135deg,var(--sage-soft),rgba(216,203,184,.4));margin-bottom:16px}
-.feature-title{font-size:16.5px;font-weight:600;color:var(--ink);margin-bottom:6px}
-.feature-desc{font-size:13px;color:var(--ink-soft);line-height:1.8}
 
 .trust-note{
   margin:28px auto 0;max-width:760px;text-align:center;
@@ -457,16 +431,16 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 .block-sub{font-size:13.5px;color:var(--ink-soft);margin:0 2px 20px;line-height:1.8;max-width:56em}
 
 /* 交错入场（慢、柔） */
-.feature-card,.mod-card,.member-card{animation:fadeUp .8s var(--ease) both}
-.feature-card:nth-child(2),.mod-card:nth-child(2),.member-card:nth-child(2){animation-delay:.08s}
-.feature-card:nth-child(3),.mod-card:nth-child(3),.member-card:nth-child(3){animation-delay:.16s}
-.feature-card:nth-child(4),.mod-card:nth-child(4),.member-card:nth-child(4){animation-delay:.24s}
+.mod-card,.member-card{animation:fadeUp .8s var(--ease) both}
+.mod-card:nth-child(2),.member-card:nth-child(2){animation-delay:.08s}
+.mod-card:nth-child(3),.member-card:nth-child(3){animation-delay:.16s}
+.mod-card:nth-child(4),.member-card:nth-child(4){animation-delay:.24s}
 .member-card:nth-child(5){animation-delay:.32s}
 
 /* 触屏设备：去掉 hover 上浮，避免“粘住” */
 @media (hover:none){
-  .card:hover,.feature-card:hover,.mod-card:hover,.member-card:hover{transform:none}
-  .btn:hover,.btn-primary:hover,.btn-start:hover,.pill:hover,.chip:hover{transform:none}
+  .card:hover,.mod-card:hover,.member-card:hover{transform:none}
+  .btn:hover,.btn-primary:hover,.btn-start:hover{transform:none}
 }
 
 @media (prefers-reduced-motion:reduce){
