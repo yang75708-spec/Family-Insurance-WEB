@@ -92,6 +92,67 @@ function pillClass(x) {
   return 'danger';
 }
 
+/* ---------- 三类保障分节 ---------- */
+function HealthSection({ P }) {
+  return (
+    <Dsec title="健康险" pill={<BudgetPill txt={P.healthBudget} />}>
+      <div className="dsec-label">重疾险</div>
+      <div className="kv-grid">
+        <KV label="建议保额" value={fmt(P.recCI)} unit="万" />
+        <KV label="已有保障" value={coverVal(P.recCI, P.ciGap)} unit={coverUnit(P.ciGap)} />
+        <KV label="目前缺口" value={fmt(P.ciGap)} unit="万" hl />
+        <KV label="年保费" value={fmt(P.estCIPrem)} unit="万" />
+      </div>
+      <div className="dsec-label">医疗险</div>
+      <div className="kv-grid">
+        <KV label="期望花销" value={fmt(P.recMI)} unit="万" />
+        <KV label="已有保障" value={coverVal(P.recMI, P.miGap)} unit={coverUnit(P.miGap)} />
+        <KV label="目前缺口" value={fmt(P.miGap)} unit="万" hl />
+        <KV label="年保费" value={fmt(P.estMIPrem)} unit="万" />
+      </div>
+      <div className="detail-foot">
+        <div className="foot-line"><span>推荐医疗方案</span><b>{P.recMIType}</b></div>
+        <p className="foot-note">{P.miReason}</p>
+        <div className="foot-sum">
+          健康险合计缺口 <b>{fmt(P.totalHealthGap)} 万</b> · 建议年保费 <b>{fmt(P.totalHealthPrem)} 万</b>
+        </div>
+      </div>
+    </Dsec>
+  );
+}
+
+function LifeSection({ P }) {
+  return (
+    <Dsec title="寿险" pill={<BudgetPill txt={P.lifeBudget} />}>
+      <div className="kv-grid">
+        <KV label="建议保额" value={fmt(P.recLife)} unit="万" />
+        <KV label="已有保障" value={fmt(P.existingLife)} unit="万" />
+        <KV label="目前缺口" value={fmt(P.lifeGap)} unit="万" hl />
+        <KV label="年保费" value={fmt(P.estLifePrem)} unit="万" />
+      </div>
+      <div className="detail-foot">
+        <div className="foot-line"><span>保障期限建议</span><b>{P.lifeTerm}</b></div>
+      </div>
+    </Dsec>
+  );
+}
+
+function PensionSection({ P }) {
+  return (
+    <Dsec title="养老金" pill={<BudgetPill txt={P.pensionBudget} />}>
+      <div className="kv-grid">
+        <KV label="退休年目标" value={fmt(P.annualRetireGoal)} unit="万/年" />
+        <KV label="已有储备终值" value={fmt(P.existingPensionFV)} unit="万" />
+        <KV label="养老缺口" value={fmt(P.pensionGap)} unit="万" hl />
+        <KV label="年缴建议" value={fmt(P.recPension)} unit="万/年" />
+      </div>
+      <div className="detail-foot">
+        <div className="foot-line"><span>建议缴费年限</span><b>{P.payYears} 年</b></div>
+      </div>
+    </Dsec>
+  );
+}
+
 /* ---------- 成员明细卡 ---------- */
 function MemberHead({ cls, num, title, role }) {
   return (
@@ -105,104 +166,73 @@ function MemberHead({ cls, num, title, role }) {
   );
 }
 
-function PillarCard({ cls, num, title, role, P }) {
+function PillarCard({ cls, num, title, role, P, cat }) {
   return (
     <div className="detail">
       <MemberHead cls={cls} num={num} title={title} role={role} />
-
-      <Dsec title="健康险" pill={<BudgetPill txt={P.healthBudget} />}>
-        <div className="dsec-label">重疾险</div>
-        <div className="kv-grid">
-          <KV label="建议保额" value={fmt(P.recCI)} unit="万" />
-          <KV label="已有保障" value={coverVal(P.recCI, P.ciGap)} unit={coverUnit(P.ciGap)} />
-          <KV label="目前缺口" value={fmt(P.ciGap)} unit="万" hl />
-          <KV label="年保费" value={fmt(P.estCIPrem)} unit="万" />
-        </div>
-        <div className="dsec-label">医疗险</div>
-        <div className="kv-grid">
-          <KV label="期望花销" value={fmt(P.recMI)} unit="万" />
-          <KV label="已有保障" value={coverVal(P.recMI, P.miGap)} unit={coverUnit(P.miGap)} />
-          <KV label="目前缺口" value={fmt(P.miGap)} unit="万" hl />
-          <KV label="年保费" value={fmt(P.estMIPrem)} unit="万" />
-        </div>
-        <div className="detail-foot">
-          <div className="foot-line"><span>推荐医疗方案</span><b>{P.recMIType}</b></div>
-          <p className="foot-note">{P.miReason}</p>
-          <div className="foot-sum">
-            健康险合计缺口 <b>{fmt(P.totalHealthGap)} 万</b> · 建议年保费 <b>{fmt(P.totalHealthPrem)} 万</b>
-          </div>
-        </div>
-      </Dsec>
-
-      <Dsec title="寿险" pill={<BudgetPill txt={P.lifeBudget} />}>
-        <div className="kv-grid">
-          <KV label="建议保额" value={fmt(P.recLife)} unit="万" />
-          <KV label="已有保障" value={fmt(P.existingLife)} unit="万" />
-          <KV label="目前缺口" value={fmt(P.lifeGap)} unit="万" hl />
-          <KV label="年保费" value={fmt(P.estLifePrem)} unit="万" />
-        </div>
-        <div className="detail-foot">
-          <div className="foot-line"><span>保障期限建议</span><b>{P.lifeTerm}</b></div>
-        </div>
-      </Dsec>
-
-      <Dsec title="养老金" pill={<BudgetPill txt={P.pensionBudget} />}>
-        <div className="kv-grid">
-          <KV label="退休年目标" value={fmt(P.annualRetireGoal)} unit="万/年" />
-          <KV label="已有储备终值" value={fmt(P.existingPensionFV)} unit="万" />
-          <KV label="养老缺口" value={fmt(P.pensionGap)} unit="万" hl />
-          <KV label="年缴建议" value={fmt(P.recPension)} unit="万/年" />
-        </div>
-        <div className="detail-foot">
-          <div className="foot-line"><span>建议缴费年限</span><b>{P.payYears} 年</b></div>
-        </div>
-      </Dsec>
+      {cat === 'health' && <HealthSection P={P} />}
+      {cat === 'life' && <LifeSection P={P} />}
+      {cat === 'pension' && <PensionSection P={P} />}
     </div>
   );
 }
 
-function ChildCard({ child }) {
+function ChildCard({ child, cat }) {
   return (
     <div className="detail">
       <MemberHead cls="c3" num="3" title="子女" role="成长中的下一代" />
-
-      <Dsec title="健康险">
-        <div className="kv-grid">
-          <KV label="重疾建议保额" value={fmt(child.recCI)} unit="万" />
-          <KV label="已有重疾保障" value={fmt(child.existingCI)} unit="万" />
-          <KV label="重疾缺口" value={fmt(child.ciGap)} unit="万" hl />
-        </div>
-        <div className="detail-foot">
-          <div className="foot-line"><span>推荐医疗方案</span><b>{child.recMIType}</b></div>
-          <p className="foot-note">{child.miReason}</p>
-        </div>
-      </Dsec>
-
-      <Dsec title="寿险">
-        <p className="dsec-text">{child.lifeConclusion}</p>
-      </Dsec>
+      {cat === 'health' && (
+        <Dsec title="健康险">
+          <div className="kv-grid">
+            <KV label="重疾建议保额" value={fmt(child.recCI)} unit="万" />
+            <KV label="已有重疾保障" value={fmt(child.existingCI)} unit="万" />
+            <KV label="重疾缺口" value={fmt(child.ciGap)} unit="万" hl />
+          </div>
+          <div className="detail-foot">
+            <div className="foot-line"><span>推荐医疗方案</span><b>{child.recMIType}</b></div>
+            <p className="foot-note">{child.miReason}</p>
+          </div>
+        </Dsec>
+      )}
+      {cat === 'life' && (
+        <Dsec title="寿险">
+          <p className="dsec-text">{child.lifeConclusion}</p>
+        </Dsec>
+      )}
+      {cat === 'pension' && (
+        <Dsec title="养老金">
+          <p className="dsec-text">子女尚无收入，养老规划以家庭经济支柱为主，此处暂不单独测算。</p>
+        </Dsec>
+      )}
     </div>
   );
 }
 
-function ParentCard({ parent }) {
+function ParentCard({ parent, cat }) {
   return (
     <div className="detail">
       <MemberHead cls="c4" num="4" title="父母" role="需温柔照护的长辈" />
-
-      <Dsec title="健康险">
-        <div className="kv-grid">
-          <KV label="已有重疾保障" value={fmt(parent.existingCI)} unit="万" />
-        </div>
-        <div className="detail-foot">
-          <div className="foot-line"><span>推荐医疗方案</span><b>{parent.recMIType}</b></div>
-          <p className="foot-note">{parent.miReason}</p>
-        </div>
-      </Dsec>
-
-      <Dsec title="寿险">
-        <p className="dsec-text">{parent.lifeConclusion}</p>
-      </Dsec>
+      {cat === 'health' && (
+        <Dsec title="健康险">
+          <div className="kv-grid">
+            <KV label="已有重疾保障" value={fmt(parent.existingCI)} unit="万" />
+          </div>
+          <div className="detail-foot">
+            <div className="foot-line"><span>推荐医疗方案</span><b>{parent.recMIType}</b></div>
+            <p className="foot-note">{parent.miReason}</p>
+          </div>
+        </Dsec>
+      )}
+      {cat === 'life' && (
+        <Dsec title="寿险">
+          <p className="dsec-text">{parent.lifeConclusion}</p>
+        </Dsec>
+      )}
+      {cat === 'pension' && (
+        <Dsec title="养老金">
+          <p className="dsec-text">父母已进入退休阶段，养老以社保与既有储备为主，此处暂不单独测算。</p>
+        </Dsec>
+      )}
     </div>
   );
 }
@@ -275,9 +305,16 @@ function buildView(r) {
   };
 }
 
+const CATS = [
+  { id: 'health', label: '健康险' },
+  { id: 'life', label: '寿险' },
+  { id: 'pension', label: '养老金' },
+];
+
 export default function ResultPage() {
   const router = useRouter();
   const [view, setView] = useState(null);
+  const [cat, setCat] = useState('health');
 
   useEffect(() => {
     if (!isInFlow()) { router.replace('/'); return; }
@@ -398,14 +435,27 @@ export default function ResultPage() {
         </div>
       </section>
 
-      {/* ── ③ 家庭成员保障明细（每人一张卡） ── */}
+      {/* ── ③ 家庭成员保障明细（每人一张卡 · 三类切换） ── */}
       <section className="block">
         <h3 className="block-title">家庭成员保障明细</h3>
-        <p className="block-sub">按成员分别呈现：每个人的重疾、医疗、寿险与养老缺口，以及对应的已有保障、年保费与预算检验。</p>
-        <PillarCard cls="c1" num="1" title="第一经济支柱" role="家庭收入与责任核心" P={view.p1} />
-        <PillarCard cls="c2" num="2" title="第二经济支柱" role="家庭共同防线" P={view.p2} />
-        <ChildCard child={view.child} />
-        <ParentCard parent={view.parent} />
+        <p className="block-sub">每位成员一张卡片；选择保障类别，即可看到该类别下各人的缺口、已有保障、年保费与预算检验。</p>
+
+        <div className="ctabs" role="tablist" aria-label="保障类别">
+          {CATS.map((c) => (
+            <button
+              key={c.id} type="button" role="tab" aria-selected={cat === c.id}
+              className={'ctab' + (cat === c.id ? ' is-on' : '')}
+              onClick={() => setCat(c.id)}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+
+        <PillarCard cls="c1" num="1" title="第一经济支柱" role="家庭收入与责任核心" P={view.p1} cat={cat} />
+        <PillarCard cls="c2" num="2" title="第二经济支柱" role="家庭共同防线" P={view.p2} cat={cat} />
+        <ChildCard child={view.child} cat={cat} />
+        <ParentCard parent={view.parent} cat={cat} />
       </section>
 
       {/* ── ④ 温暖总结 ── */}

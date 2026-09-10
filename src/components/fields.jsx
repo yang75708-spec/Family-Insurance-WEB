@@ -1,6 +1,6 @@
 'use client';
 
-// 表单字段组件：原生下拉 / 数字输入 / 是否下拉 / 原生多选
+// 表单字段组件：原生下拉 / 数字输入 / 是否下拉
 
 function unitOf(placeholder) {
   if (!placeholder) return null;
@@ -67,20 +67,6 @@ export function Switch({ label, checked, onChange }) {
           <option value="否">否</option>
         </select>
       </div>
-    </div>
-  );
-}
-
-export function CbGroup({ types, values, onToggle }) {
-  return (
-    <div className="check-group" role="group">
-      {types.map((t) => (
-        <label key={t} className="check-item">
-          <input type="checkbox" checked={!!values[t]} onChange={() => onToggle(t)} />
-          <span className="check-box" aria-hidden="true" />
-          <span>{t}</span>
-        </label>
-      ))}
     </div>
   );
 }

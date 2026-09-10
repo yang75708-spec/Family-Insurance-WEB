@@ -4,19 +4,19 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { OPTIONS, getMedicalOptions, getMedicalHint } from '@/lib/options';
 import { getFormData, saveFormData, isInFlow } from '@/lib/store';
-import { Picker, NumInput, Switch, CbGroup } from '@/components/fields';
+import { Picker, NumInput, Switch } from '@/components/fields';
 import JourneyBar from '@/components/JourneyBar';
 
 const HI_TYPES = ['社保医保', '惠民保', '百万医疗', '中端医疗', '高端医疗', '重疾险'];
 // 商业医疗险：社保医保默认勾选，不单独触发「已有医疗险保额」输入
 const MED_COMMERCIAL = ['惠民保', '百万医疗', '中端医疗', '高端医疗'];
 
-// member 勾选 key ↔ 表单字段前缀；mi 表示该成员是否含医疗险保额输入
+// 家庭成员（矩阵列）：m = 勾选 key 前缀，f = 表单字段前缀，mi = 是否含医疗险保额输入
 const MEMBERS = [
-  { m: 'p1', f: 'firstPerson', mi: true },
-  { m: 'p2', f: 'secondPerson', mi: true },
-  { m: 'child', f: 'child', mi: false },
-  { m: 'parent', f: 'parent', mi: false },
+  { m: 'p1', f: 'firstPerson', label: '第一支柱', mi: true },
+  { m: 'p2', f: 'secondPerson', label: '第二支柱', mi: true },
+  { m: 'child', f: 'child', label: '子女', mi: false },
+  { m: 'parent', f: 'parent', label: '父母', mi: false },
 ];
 
 export default function HealthPage() {
@@ -28,7 +28,6 @@ export default function HealthPage() {
   }, [router]);
 
   const set = (field, value) => setForm((f) => ({ ...f, [field]: value }));
-  const memberValues = (m) => HI_TYPES.reduce((acc, t) => { acc[t] = !!form[m + '_' + t]; return acc; }, {});
   const toggle = (m, t) => set(m + '_' + t, !form[m + '_' + t]);
   const ciOn = (m) => !!form[m + '_重疾险'];
   const miOn = (m) => MED_COMMERCIAL.some((t) => !!form[m + '_' + t]);
@@ -61,8 +60,6 @@ export default function HealthPage() {
           />
         </div>
         <div className="tip">{getMedicalHint(form.city, form[formKey + 'HealthStatus'], form[member + '_期望医疗消费档位'])}</div>
-        <div className="sec-title">已有险种（勾选后自动计入已有保额）</div>
-        <CbGroup types={HI_TYPES} values={memberValues(member)} onToggle={(t) => toggle(member, t)} />
         <div className="field-grid">
           {ciOn(member) && (
             <NumInput label="已有重疾险保额（万）" value={form[formKey + 'CIExisting']} onChange={(v) => set(formKey + 'CIExisting', v)} placeholder="手动填写" />
@@ -79,23 +76,50 @@ export default function HealthPage() {
 
   function childBlock(member, formKey) {
     return (
-      <>
-        <div className="sec-title">已有险种（勾选后自动计入已有保额）</div>
-        <CbGroup types={HI_TYPES} values={memberValues(member)} onToggle={(t) => toggle(member, t)} />
-        <div className="field-grid">
-          {ciOn(member) && (
-            <NumInput label="已有重疾险保额（万）" value={form[formKey + 'CIExisting']} onChange={(v) => set(formKey + 'CIExisting', v)} placeholder="手动填写" />
-          )}
-          <Picker label="医疗险保费预算" options={OPTIONS.miBudget} value={form[formKey + 'MIPremiumBudget']} onChange={(v) => set(formKey + 'MIPremiumBudget', v)} />
-        </div>
-      </>
+      <div className="field-grid">
+        {ciOn(member) && (
+          <NumInput label="已有重疾险保额（万）" value={form[formKey + 'CIExisting']} onChange={(v) => set(formKey + 'CIExisting', v)} placeholder="手动填写" />
+        )}
+        <Picker label="医疗险保费预算" options={OPTIONS.miBudget} value={form[formKey + 'MIPremiumBudget']} onChange={(v) => set(formKey + 'MIPremiumBudget', v)} />
+      </div>
     );
   }
 
   return (
     <div className="page">
       <JourneyBar index={2} />
-      <p className="step-hint">勾选家庭成员已有的医疗 / 重疾险种，并设置期望医疗年花销与保费预算；勾选的险种会按有效保额自动参与缺口测算。</p>
+      <p className="step-hint">先一次性勾选全家已有的险种，再逐个成员补充身体状况、期望医疗花销与保费预算；勾选的险种会按有效保额自动参与缺口测算。</p>
+
+      <div className="card">
+        <div className="card-title">家庭成员已有险种</div>
+        <p className="card-sub">横向为家庭成员，纵向为险种，请勾选各自已配置的项目。</p>
+        <div className="ins-wrap">
+          <div className="ins-table">
+            <div className="ins-row ins-head">
+              <div className="ins-cell ins-name">险种</div>
+              {MEMBERS.map((m) => (
+                <div className="ins-cell ins-col" key={m.m}>{m.label}</div>
+              ))}
+            </div>
+            {HI_TYPES.map((t) => (
+              <div className="ins-row" key={t}>
+                <div className="ins-cell ins-name">{t}</div>
+                {MEMBERS.map((m) => (
+                  <label className="ins-cell ins-pick" key={m.m}>
+                    <input
+                      type="checkbox"
+                      aria-label={`${m.label} · ${t}`}
+                      checked={!!form[m.m + '_' + t]}
+                      onChange={() => toggle(m.m, t)}
+                    />
+                    <span className="check-box" aria-hidden="true" />
+                  </label>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
       <div className="card">
         <div className="card-title">家庭系数与缴费方式</div>
