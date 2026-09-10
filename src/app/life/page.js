@@ -19,7 +19,7 @@ export default function LifePage() {
 
   function pillarBlock(formKey) {
     return (
-      <>
+      <div className="field-grid">
         <Switch label="已配置寿险" checked={form[formKey + 'HasLifeIns']} onChange={(v) => set(formKey + 'HasLifeIns', v)} />
         {form[formKey + 'HasLifeIns'] && (
           <>
@@ -29,7 +29,7 @@ export default function LifePage() {
         )}
         <Picker label="保障期限偏好" options={OPTIONS.lifeTerm} value={form[formKey + 'LifeTerm']} onChange={(v) => set(formKey + 'LifeTerm', v)} />
         <NumInput label="寿险年保费预算（万）" value={form[formKey + 'LifeBudget']} onChange={(v) => set(formKey + 'LifeBudget', v)} placeholder="如 1" />
-      </>
+      </div>
     );
   }
 

@@ -50,25 +50,29 @@ export default function HealthPage() {
   function pillarBlock(member, formKey) {
     return (
       <>
-        <Picker label="身体状况自评" options={OPTIONS.healthStatus} value={form[formKey + 'HealthStatus']} onChange={(v) => set(formKey + 'HealthStatus', v)} />
-        <Switch label="是否吸烟" checked={form[formKey + 'Smoke']} onChange={(v) => set(formKey + 'Smoke', v)} />
-        <Picker
-          label="期望医疗年花销"
-          options={getMedicalOptions(form.city, form[formKey + 'HealthStatus'])}
-          value={form[member + '_期望医疗消费档位']}
-          onChange={(v) => set(member + '_期望医疗消费档位', v)}
-        />
+        <div className="field-grid">
+          <Picker label="身体状况自评" options={OPTIONS.healthStatus} value={form[formKey + 'HealthStatus']} onChange={(v) => set(formKey + 'HealthStatus', v)} />
+          <Switch label="是否吸烟" checked={form[formKey + 'Smoke']} onChange={(v) => set(formKey + 'Smoke', v)} />
+          <Picker
+            label="期望医疗年花销"
+            options={getMedicalOptions(form.city, form[formKey + 'HealthStatus'])}
+            value={form[member + '_期望医疗消费档位']}
+            onChange={(v) => set(member + '_期望医疗消费档位', v)}
+          />
+        </div>
         <div className="tip">{getMedicalHint(form.city, form[formKey + 'HealthStatus'], form[member + '_期望医疗消费档位'])}</div>
         <div className="sec-title">已有险种（勾选后自动计入已有保额）</div>
         <CbGroup types={HI_TYPES} values={memberValues(member)} onToggle={(t) => toggle(member, t)} />
-        {ciOn(member) && (
-          <NumInput label="已有重疾险保额（万）" value={form[formKey + 'CIExisting']} onChange={(v) => set(formKey + 'CIExisting', v)} placeholder="手动填写" />
-        )}
-        {miOn(member) && (
-          <NumInput label="已有医疗险保额（万）" value={form[formKey + 'MIExisting']} onChange={(v) => set(formKey + 'MIExisting', v)} placeholder="手动填写" />
-        )}
-        <Picker label="重疾险保费预算" options={OPTIONS.ciBudget} value={form[formKey + 'CIPremiumBudget']} onChange={(v) => set(formKey + 'CIPremiumBudget', v)} />
-        <Picker label="医疗险保费预算" options={OPTIONS.miBudget} value={form[formKey + 'MIPremiumBudget']} onChange={(v) => set(formKey + 'MIPremiumBudget', v)} />
+        <div className="field-grid">
+          {ciOn(member) && (
+            <NumInput label="已有重疾险保额（万）" value={form[formKey + 'CIExisting']} onChange={(v) => set(formKey + 'CIExisting', v)} placeholder="手动填写" />
+          )}
+          {miOn(member) && (
+            <NumInput label="已有医疗险保额（万）" value={form[formKey + 'MIExisting']} onChange={(v) => set(formKey + 'MIExisting', v)} placeholder="手动填写" />
+          )}
+          <Picker label="重疾险保费预算" options={OPTIONS.ciBudget} value={form[formKey + 'CIPremiumBudget']} onChange={(v) => set(formKey + 'CIPremiumBudget', v)} />
+          <Picker label="医疗险保费预算" options={OPTIONS.miBudget} value={form[formKey + 'MIPremiumBudget']} onChange={(v) => set(formKey + 'MIPremiumBudget', v)} />
+        </div>
       </>
     );
   }
@@ -78,10 +82,12 @@ export default function HealthPage() {
       <>
         <div className="sec-title">已有险种（勾选后自动计入已有保额）</div>
         <CbGroup types={HI_TYPES} values={memberValues(member)} onToggle={(t) => toggle(member, t)} />
-        {ciOn(member) && (
-          <NumInput label="已有重疾险保额（万）" value={form[formKey + 'CIExisting']} onChange={(v) => set(formKey + 'CIExisting', v)} placeholder="手动填写" />
-        )}
-        <Picker label="医疗险保费预算" options={OPTIONS.miBudget} value={form[formKey + 'MIPremiumBudget']} onChange={(v) => set(formKey + 'MIPremiumBudget', v)} />
+        <div className="field-grid">
+          {ciOn(member) && (
+            <NumInput label="已有重疾险保额（万）" value={form[formKey + 'CIExisting']} onChange={(v) => set(formKey + 'CIExisting', v)} placeholder="手动填写" />
+          )}
+          <Picker label="医疗险保费预算" options={OPTIONS.miBudget} value={form[formKey + 'MIPremiumBudget']} onChange={(v) => set(formKey + 'MIPremiumBudget', v)} />
+        </div>
       </>
     );
   }
@@ -93,8 +99,10 @@ export default function HealthPage() {
 
       <div className="card">
         <div className="card-title">家庭系数与缴费方式</div>
-        <Picker label="重疾险缴费方式" options={OPTIONS.ciPayPeriod} value={form.ciPayPeriod} onChange={(v) => set('ciPayPeriod', v)} />
-        <Picker label="家庭系数（治疗费用承担意愿）" options={OPTIONS.familyCoefficient} value={form.familyCoefficient} onChange={(v) => set('familyCoefficient', v)} />
+        <div className="field-grid">
+          <Picker label="重疾险缴费方式" options={OPTIONS.ciPayPeriod} value={form.ciPayPeriod} onChange={(v) => set('ciPayPeriod', v)} />
+          <Picker label="家庭系数（治疗费用承担意愿）" options={OPTIONS.familyCoefficient} value={form.familyCoefficient} onChange={(v) => set('familyCoefficient', v)} />
+        </div>
         <div className="tip">家庭系数表示患病时家庭愿意动用流动资产的比例：保守约30%、稳健约50%、进取约60%。流动资产×系数将从健康险总缺口中一次性抵扣。</div>
       </div>
 

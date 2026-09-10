@@ -37,15 +37,17 @@ export default function PensionPage() {
     return (
       <div className="card">
         <div className="card-title">{title}</div>
-        {PILLAR_FIELDS.map((f) => (
-          <Picker
-            key={f.key}
-            label={f.label}
-            options={f.options}
-            value={form[fieldName(prefix, f.key)]}
-            onChange={(v) => set(fieldName(prefix, f.key), v)}
-          />
-        ))}
+        <div className="field-grid">
+          {PILLAR_FIELDS.map((f) => (
+            <Picker
+              key={f.key}
+              label={f.label}
+              options={f.options}
+              value={form[fieldName(prefix, f.key)]}
+              onChange={(v) => set(fieldName(prefix, f.key), v)}
+            />
+          ))}
+        </div>
       </div>
     );
   }

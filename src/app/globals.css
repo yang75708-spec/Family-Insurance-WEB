@@ -112,7 +112,9 @@ button{font-family:inherit;letter-spacing:.01em}
 .field:last-child{padding-bottom:4px}
 .field-label{font-size:15.5px;font-weight:600;color:var(--ink);margin-bottom:12px;display:flex;align-items:baseline;gap:8px}
 .field-label .hint{font-size:12px;color:var(--ink-faint);font-weight:400}
-.field-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:0 clamp(18px,3vw,40px)}
+/* 可并排的填写框：窄屏 1 列 → 平板 2 列 → 宽屏 3 列 */
+.field-grid{display:grid;grid-template-columns:1fr;gap:0 clamp(18px,2.4vw,34px)}
+.field-grid .field{padding:8px 0 16px}
 
 /* 选项下拉（原生 select 高级化，非胶囊） */
 .dd{position:relative}
@@ -464,8 +466,13 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 }
 
 /* ---------------- 响应式 ---------------- */
+@media (min-width:560px){
+  .field-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (min-width:1180px){
+  .field-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
 @media (max-width:1080px){
-  .feature-wrap{grid-template-columns:1fr 1fr}
   .mod-grid{grid-template-columns:1fr 1fr}
   .dash-top{grid-template-columns:1fr}
 }
@@ -480,11 +487,9 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
   .card{padding:20px 18px;border-radius:24px}
   .journey{padding:26px 2px 2px}
   .journey-label{display:none}
-  .feature-wrap{grid-template-columns:1fr}
   .mod-grid{grid-template-columns:1fr}
   .dash-stats{grid-template-columns:repeat(3,1fr);gap:8px}
   .stat .s-num{font-size:26px}
-  .archive{grid-template-columns:1fr}
   .footer{border-radius:24px 24px 0 0;gap:10px}
   .ring-wrap{width:min(86vw,340px);height:min(86vw,340px)}
 }
