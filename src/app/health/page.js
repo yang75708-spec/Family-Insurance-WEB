@@ -8,11 +8,15 @@ import { Picker, NumInput, Switch, CbGroup } from '@/components/fields';
 import JourneyBar from '@/components/JourneyBar';
 
 const HI_TYPES = ['社保医保', '惠民保', '百万医疗', '中端医疗', '高端医疗', '重疾险'];
+// 商业医疗险：社保医保默认勾选，不单独触发「已有医疗险保额」输入
+const MED_COMMERCIAL = ['惠民保', '百万医疗', '中端医疗', '高端医疗'];
 
-const EXISTING_NUM = [
-  'firstPersonCIExisting', 'secondPersonCIExisting',
-  'firstPersonMIExisting', 'secondPersonMIExisting',
-  'childCIExisting', 'parentCIExisting',
+// member 勾选 key ↔ 表单字段前缀；mi 表示该成员是否含医疗险保额输入
+const MEMBERS = [
+  { m: 'p1', f: 'firstPerson', mi: true },
+  { m: 'p2', f: 'secondPerson', mi: true },
+  { m: 'child', f: 'child', mi: false },
+  { m: 'parent', f: 'parent', mi: false },
 ];
 
 export default function HealthPage() {
@@ -26,11 +30,18 @@ export default function HealthPage() {
   const set = (field, value) => setForm((f) => ({ ...f, [field]: value }));
   const memberValues = (m) => HI_TYPES.reduce((acc, t) => { acc[t] = !!form[m + '_' + t]; return acc; }, {});
   const toggle = (m, t) => set(m + '_' + t, !form[m + '_' + t]);
+  const ciOn = (m) => !!form[m + '_重疾险'];
+  const miOn = (m) => MED_COMMERCIAL.some((t) => !!form[m + '_' + t]);
 
   function next() {
     const f = { ...form };
-    EXISTING_NUM.forEach((k) => {
-      f[k] = f[k] === '' || f[k] === undefined || f[k] === null ? 0 : Number(f[k]);
+    MEMBERS.forEach(({ m, f: fk, mi }) => {
+      if (!f[m + '_重疾险']) f[fk + 'CIExisting'] = 0;
+      if (mi && !MED_COMMERCIAL.some((t) => !!f[m + '_' + t])) f[fk + 'MIExisting'] = 0;
+      const ciKey = fk + 'CIExisting';
+      const miKey = fk + 'MIExisting';
+      f[ciKey] = f[ciKey] === '' || f[ciKey] === undefined || f[ciKey] === null ? 0 : Number(f[ciKey]);
+      if (mi) f[miKey] = f[miKey] === '' || f[miKey] === undefined || f[miKey] === null ? 0 : Number(f[miKey]);
     });
     saveFormData(f);
     router.push('/life');
@@ -50,8 +61,12 @@ export default function HealthPage() {
         <div className="tip">{getMedicalHint(form.city, form[formKey + 'HealthStatus'], form[member + '_期望医疗消费档位'])}</div>
         <div className="sec-title">已有险种（勾选后自动计入已有保额）</div>
         <CbGroup types={HI_TYPES} values={memberValues(member)} onToggle={(t) => toggle(member, t)} />
-        <NumInput label="已有重疾险保额（万）" value={form[formKey + 'CIExisting']} onChange={(v) => set(formKey + 'CIExisting', v)} placeholder="手动填写" />
-        <NumInput label="已有医疗险保额（万）" value={form[formKey + 'MIExisting']} onChange={(v) => set(formKey + 'MIExisting', v)} placeholder="手动填写" />
+        {ciOn(member) && (
+          <NumInput label="已有重疾险保额（万）" value={form[formKey + 'CIExisting']} onChange={(v) => set(formKey + 'CIExisting', v)} placeholder="手动填写" />
+        )}
+        {miOn(member) && (
+          <NumInput label="已有医疗险保额（万）" value={form[formKey + 'MIExisting']} onChange={(v) => set(formKey + 'MIExisting', v)} placeholder="手动填写" />
+        )}
         <Picker label="重疾险保费预算" options={OPTIONS.ciBudget} value={form[formKey + 'CIPremiumBudget']} onChange={(v) => set(formKey + 'CIPremiumBudget', v)} />
         <Picker label="医疗险保费预算" options={OPTIONS.miBudget} value={form[formKey + 'MIPremiumBudget']} onChange={(v) => set(formKey + 'MIPremiumBudget', v)} />
       </>
@@ -63,7 +78,9 @@ export default function HealthPage() {
       <>
         <div className="sec-title">已有险种（勾选后自动计入已有保额）</div>
         <CbGroup types={HI_TYPES} values={memberValues(member)} onToggle={(t) => toggle(member, t)} />
-        <NumInput label="已有重疾险保额（万）" value={form[formKey + 'CIExisting']} onChange={(v) => set(formKey + 'CIExisting', v)} placeholder="手动填写" />
+        {ciOn(member) && (
+          <NumInput label="已有重疾险保额（万）" value={form[formKey + 'CIExisting']} onChange={(v) => set(formKey + 'CIExisting', v)} placeholder="手动填写" />
+        )}
         <Picker label="医疗险保费预算" options={OPTIONS.miBudget} value={form[formKey + 'MIPremiumBudget']} onChange={(v) => set(formKey + 'MIPremiumBudget', v)} />
       </>
     );

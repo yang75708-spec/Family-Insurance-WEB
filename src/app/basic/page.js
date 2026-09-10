@@ -81,7 +81,7 @@ export default function BasicPage() {
         <div className="card-title">子女与长辈</div>
         <p className="card-sub">子女与父母的保障配置会参考这些信息。</p>
         <div className="field-grid">
-          <NumInput label="子女年龄" value={form.childAge} onChange={(v) => set('childAge', v)} placeholder="岁（无子女填0）" />
+          <NumInput label="最小子女年龄" value={form.childAge} onChange={(v) => set('childAge', v)} placeholder="岁（无子女填0）" />
           <NumInput label="子女数量" value={form.childCount} onChange={(v) => set('childCount', v)} placeholder="个" />
           <NumInput label="赡养老人数量" value={form.parentSupportCount} onChange={(v) => set('parentSupportCount', v)} placeholder="位" />
           <Picker label="所在城市" options={PICKERS.city} value={form.city} onChange={(v) => set('city', v)} />
